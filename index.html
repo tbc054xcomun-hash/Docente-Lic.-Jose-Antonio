@@ -16,10 +16,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* PALETA FORMAL Y PROFESIONAL */
-            --bg-color: #0f172a; /* Fondo principal en Azul Oscuro Formal / Slate */
+            --bg-color: #0f172a;
             --card-bg: #ffffff;
-            --primary: #1e40af; /* Azul institucional formal */
+            --primary: #1e40af;
             --primary-light: #3b82f6;
             --accent-green: #10b981;
             --accent-red: #ef4444;
@@ -266,7 +265,6 @@
         .btn-del-actividad { background: none; border: none; cursor: pointer; color: var(--accent-red); font-size: 12px; margin-left: 4px; }
         .rango-fechas { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
 
-        /* Indicador de estado de sincronización */
         #cloud-status {
             font-size: 12px;
             font-weight: bold;
@@ -493,7 +491,7 @@
         </div>
     </div>
 
-    <!-- SDKs DE FIREBASE COMPATIBLES -->
+    <!-- SDKs DE FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -506,7 +504,6 @@
         document.getElementById('rep-fecha-inicio').valueAsDate = inicioSemana;
         document.getElementById('rep-fecha-fin').valueAsDate = hoy;
 
-        // Variables de datos (Carga inicial desde LocalStorage)
         let materias = JSON.parse(localStorage.getItem('tb_materias')) || [
             "Matemáticas I", "Pensamiento Matemático", "Física I", "Física II", "Química", "Humanidades", "Lengua y Comunicación", "Estructura Socioeconómica de México"
         ];
@@ -525,51 +522,43 @@
 
         let bibliotecaPlaneaciones = JSON.parse(localStorage.getItem('tb_biblioteca_docente')) || [];
 
-        // ==========================================
-        // CONFIGURACIÓN E INTEGRACIÓN CON FIREBASE
-        // ==========================================
-        // ⚠️ REEMPLAZA ESTAS CLAVES CON LAS DE TU PROYECTO DE FIREBASE ⚠️
+        // CONFIGURACIÓN REAL DE FIREBASE
         const firebaseConfig = {
-            apiKey: "TU_API_KEY_AQUI",
-            authDomain: "tu-proyecto.firebaseapp.com",
-            databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",
-            projectId: "tu-proyecto",
-            storageBucket: "tu-proyecto.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abc123def456"
+            apiKey: "AIzaSyAsRKbpoeJghXgOMkIQA3c10BAD040f7fA",
+            authDomain: "registro-docente-97f5f.firebaseapp.com",
+            databaseURL: "https://registro-docente-97f5f-default-rtdb.firebaseio.com",
+            projectId: "registro-docente-97f5f",
+            storageBucket: "registro-docente-97f5f.firebasestorage.app",
+            messagingSenderId: "768925300502",
+            appId: "1:768925300502:web:1382c0b860b5ade940c237"
         };
 
         let db = null;
         let firebaseActivo = false;
 
         try {
-            if (firebaseConfig.apiKey !== "TU_API_KEY_AQUI") {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.database();
-                firebaseActivo = true;
-                
-                // Escuchar cambios de Firebase en tiempo real desde cualquier dispositivo
-                db.ref('control_docente/').on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        materias = data.materias || materias;
-                        actividades = data.actividades || actividades;
-                        alumnos = data.alumnos || alumnos;
-                        bibliotecaPlaneaciones = data.bibliotecaPlaneaciones || bibliotecaPlaneaciones;
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            firebaseActivo = true;
+            
+            // Sincronización en tiempo real
+            db.ref('control_docente/').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    materias = data.materias || materias;
+                    actividades = data.actividades || actividades;
+                    alumnos = data.alumnos || alumnos;
+                    bibliotecaPlaneaciones = data.bibliotecaPlaneaciones || bibliotecaPlaneaciones;
 
-                        guardarEnLocalStorage();
-                        cargarMateriasEnSelect();
-                        renderizarCatMaterias();
-                        renderizarTodo();
-                        
-                        document.getElementById('cloud-status').innerText = '🟢 Sincronizado';
-                        document.getElementById('cloud-status').style.background = '#dcfce7';
-                        document.getElementById('cloud-status').style.color = '#15803d';
-                    }
-                });
-            } else {
-                document.getElementById('cloud-status').innerText = '🟡 Modo Local';
-            }
+                    guardarEnLocalStorage();
+                    cargarMateriasEnSelect();
+                    renderizarCatMaterias();
+                    renderizarTodo();
+                }
+                document.getElementById('cloud-status').innerText = '🟢 Sincronizado';
+                document.getElementById('cloud-status').style.background = '#dcfce7';
+                document.getElementById('cloud-status').style.color = '#15803d';
+            });
         } catch (e) {
             console.error("Error al iniciar Firebase:", e);
             document.getElementById('cloud-status').innerText = '🔴 Error Nube';
@@ -599,10 +588,6 @@
                 }).catch(err => console.error("Error al subir a Firebase:", err));
             }
         }
-
-        // ==========================================
-        // LÓGICA DE LA APLICACIÓN Y RENDERIZADO
-        // ==========================================
 
         function cargarMateriasEnSelect() {
             const selectMateria = document.getElementById('materia');
@@ -954,12 +939,12 @@
 
         function guardarCalificaciones() {
             guardarGlobal();
-            alert('📝 ¡Calificaciones guardadas con éxito, José Antonio!');
+            alert('📝 ¡Calificaciones guardadas con éxito en Firebase!');
         }
 
         function guardarPaseLista() {
             guardarGlobal();
-            alert('📋 Pase de lista y observaciones guardados correctamente.');
+            alert('📋 Pase de lista y observaciones guardados correctamente en Firebase.');
         }
 
         function guardarPlaneacionBiblioteca() {
@@ -988,7 +973,7 @@
             document.getElementById('plan-secuencia').value = '';
             document.getElementById('plan-bitacora').value = '';
 
-            alert('📚 ¡Planeación agregada a su Biblioteca!');
+            alert('📚 ¡Planeación agregada a su Biblioteca y sincronizada!');
         }
 
         function borrarPlaneacion(id) {
@@ -1073,12 +1058,11 @@
             reader.readAsText(file);
         }
 
-        // Inicialización
         cargarMateriasEnSelect();
         renderizarTodo();
     </script>
 
-    <!-- Registro del Service Worker para la PWA -->
+    <!-- Service Worker para PWA -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -1088,44 +1072,5 @@
         });
       }
     </script>
-    <!-- Importar Firebase desde la CDN como módulos JS -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-  // Tu configuración de Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyAsRKbpoeJghXgOMkIQA3c10BAD040f7fA",
-    authDomain: "registro-docente-97f5f.firebaseapp.com",
-    databaseURL: "https://registro-docente-97f5f-default-rtdb.firebaseio.com",
-    projectId: "registro-docente-97f5f",
-    storageBucket: "registro-docente-97f5f.firebasestorage.app",
-    messagingSenderId: "768925300502",
-    appId: "1:768925300502:web:1382c0b860b5ade940c237",
-    measurementId: "G-LPM9T4X9E2"
-  };
-
-  <!-- Conexión a Firebase -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAsRKbpoeJghXgOMkIQA3c10BAD040f7fA",
-    authDomain: "registro-docente-97f5f.firebaseapp.com",
-    databaseURL: "https://registro-docente-97f5f-default-rtdb.firebaseio.com",
-    projectId: "registro-docente-97f5f",
-    storageBucket: "registro-docente-97f5f.firebasestorage.app",
-    messagingSenderId: "768925300502",
-    appId: "1:768925300502:web:1382c0b860b5ade940c237",
-    measurementId: "G-LPM9T4X9E2"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const database = getDatabase(app);
-
-  console.log("Firebase conectado correctamente");
-</script>
-</script>
 </body>
 </html>

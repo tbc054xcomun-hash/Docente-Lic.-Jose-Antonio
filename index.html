@@ -341,11 +341,11 @@
     </div>
 
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="cambiarTab('asistencia')">📋 Pase de Lista</button>
-        <button class="tab-btn" onclick="cambiarTab('evaluacion')">📝 Trabajos y Exámenes</button>
-        <button class="tab-btn" onclick="cambiarTab('planeacion')">📚 Biblioteca de Planeaciones</button>
-        <button class="tab-btn" onclick="cambiarTab('reportes')">📊 Reportes e Impresión</button>
-        <button class="tab-btn" onclick="cambiarTab('materias')">⚙️ Mis Materias</button>
+        <button class="tab-btn active" onclick="cambiarTab('asistencia', event)">📋 Pase de Lista</button>
+        <button class="tab-btn" onclick="cambiarTab('evaluacion', event)">📝 Trabajos y Exámenes</button>
+        <button class="tab-btn" onclick="cambiarTab('planeacion', event)">📚 Biblioteca de Planeaciones</button>
+        <button class="tab-btn" onclick="cambiarTab('reportes', event)">📊 Reportes e Impresión</button>
+        <button class="tab-btn" onclick="cambiarTab('materias', event)">⚙️ Mis Materias</button>
     </div>
 
     <!-- 1. PASE DE LISTA -->
@@ -491,38 +491,12 @@
         </div>
     </div>
 
-    <!-- SDKs DE FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <!-- IMPORTACIÓN MODULAR DE FIREBASE v10 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    <script>
-        document.getElementById('fecha').valueAsDate = new Date();
-        
-        const hoy = new Date();
-        const inicioSemana = new Date(hoy);
-        inicioSemana.setDate(hoy.getDate() - 6);
-        document.getElementById('rep-fecha-inicio').valueAsDate = inicioSemana;
-        document.getElementById('rep-fecha-fin').valueAsDate = hoy;
-
-        let materias = JSON.parse(localStorage.getItem('tb_materias')) || [
-            "Matemáticas I", "Pensamiento Matemático", "Física I", "Física II", "Química", "Humanidades", "Lengua y Comunicación", "Estructura Socioeconómica de México"
-        ];
-
-        let actividades = JSON.parse(localStorage.getItem('tb_actividades')) || [
-            { id: 1, nombre: 'Tarea 1' },
-            { id: 2, nombre: 'Proyecto' },
-            { id: 3, nombre: 'Examen' }
-        ];
-
-        let alumnos = JSON.parse(localStorage.getItem('tb_alumnos_v5')) || [
-            { id: 1, grupo: 'A', nombre: 'García López, Carlos', obs: 'Entregó justificante el martes', asistencias: 4, retardos: 1, faltas: 2, notas: { "Matemáticas I": { 1: 9, 2: 8, 3: 7 } } },
-            { id: 2, grupo: 'A', nombre: 'Hernández Gómez, Ana', obs: 'Excelente participación', asistencias: 7, retardos: 0, faltas: 0, notas: { "Matemáticas I": { 1: 10, 2: 10, 3: 9 } } },
-            { id: 3, grupo: 'A', nombre: 'Martínez Ruiz, Luis', obs: '', asistencias: 3, retardos: 0, faltas: 4, notas: { "Matemáticas I": { 1: 6, 2: 7, 3: 5 } } }
-        ];
-
-        let bibliotecaPlaneaciones = JSON.parse(localStorage.getItem('tb_biblioteca_docente')) || [];
-
-        // CONFIGURACIÓN REAL DE FIREBASE
+        // Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAsRKbpoeJghXgOMkIQA3c10BAD040f7fA",
             authDomain: "registro-docente-97f5f.firebaseapp.com",
@@ -533,40 +507,82 @@
             appId: "1:768925300502:web:1382c0b860b5ade940c237"
         };
 
-        let db = null;
-        let firebaseActivo = false;
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const docenteRef = ref(db, 'control_docente');
 
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-            firebaseActivo = true;
-            
-            // Sincronización en tiempo real
-            db.ref('control_docente/').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    materias = data.materias || materias;
-                    actividades = data.actividades || actividades;
-                    alumnos = data.alumnos || alumnos;
-                    bibliotecaPlaneaciones = data.bibliotecaPlaneaciones || bibliotecaPlaneaciones;
+        // Sincronización en tiempo real multiterminal
+        onValue(docenteRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                window.materias = data.materias || window.materias;
+                window.actividades = data.actividades || window.actividades;
+                window.alumnos = data.alumnos || window.alumnos;
+                window.bibliotecaPlaneaciones = data.bibliotecaPlaneaciones || window.bibliotecaPlaneaciones;
 
-                    guardarEnLocalStorage();
-                    cargarMateriasEnSelect();
-                    renderizarCatMaterias();
-                    renderizarTodo();
-                }
-                document.getElementById('cloud-status').innerText = '🟢 Sincronizado';
-                document.getElementById('cloud-status').style.background = '#dcfce7';
-                document.getElementById('cloud-status').style.color = '#15803d';
-            });
-        } catch (e) {
-            console.error("Error al iniciar Firebase:", e);
-            document.getElementById('cloud-status').innerText = '🔴 Error Nube';
-        }
+                window.guardarEnLocalStorage();
+                window.cargarMateriasEnSelect();
+                window.renderizarCatMaterias();
+                window.renderizarTodo();
+            }
+            const statusEl = document.getElementById('cloud-status');
+            if (statusEl) {
+                statusEl.innerText = '🟢 Sincronizado';
+                statusEl.style.background = '#dcfce7';
+                statusEl.style.color = '#15803d';
+            }
+        }, (error) => {
+            console.error("Error al sincronizar con Firebase:", error);
+            const statusEl = document.getElementById('cloud-status');
+            if (statusEl) {
+                statusEl.innerText = '🔴 Error Nube';
+            }
+        });
+
+        window.guardarEnFirebase = function() {
+            set(docenteRef, {
+                materias: window.materias,
+                actividades: window.actividades,
+                alumnos: window.alumnos,
+                bibliotecaPlaneaciones: window.bibliotecaPlaneaciones
+            }).then(() => {
+                console.log("Sincronizado en tiempo real con Firebase");
+            }).catch(err => console.error("Error al guardar en Firebase:", err));
+        };
+    </script>
+
+    <script>
+        document.getElementById('fecha').valueAsDate = new Date();
+        
+        const hoy = new Date();
+        const inicioSemana = new Date(hoy);
+        inicioSemana.setDate(hoy.getDate() - 6);
+        document.getElementById('rep-fecha-inicio').valueAsDate = inicioSemana;
+        document.getElementById('rep-fecha-fin').valueAsDate = hoy;
+
+        var materias = JSON.parse(localStorage.getItem('tb_materias')) || [
+            "Matemáticas I", "Pensamiento Matemático", "Física I", "Física II", "Química", "Humanidades", "Lengua y Comunicación", "Estructura Socioeconómica de México"
+        ];
+
+        var actividades = JSON.parse(localStorage.getItem('tb_actividades')) || [
+            { id: 1, nombre: 'Tarea 1' },
+            { id: 2, nombre: 'Proyecto' },
+            { id: 3, nombre: 'Examen' }
+        ];
+
+        var alumnos = JSON.parse(localStorage.getItem('tb_alumnos_v5')) || [
+            { id: 1, grupo: 'A', nombre: 'García López, Carlos', obs: 'Entregó justificante el martes', asistencias: 4, retardos: 1, faltas: 2, notas: { "Matemáticas I": { 1: 9, 2: 8, 3: 7 } } },
+            { id: 2, grupo: 'A', nombre: 'Hernández Gómez, Ana', obs: 'Excelente participación', asistencias: 7, retardos: 0, faltas: 0, notas: { "Matemáticas I": { 1: 10, 2: 10, 3: 9 } } },
+            { id: 3, grupo: 'A', nombre: 'Martínez Ruiz, Luis', obs: '', asistencias: 3, retardos: 0, faltas: 4, notas: { "Matemáticas I": { 1: 6, 2: 7, 3: 5 } } }
+        ];
+
+        var bibliotecaPlaneaciones = JSON.parse(localStorage.getItem('tb_biblioteca_docente')) || [];
 
         function guardarGlobal() {
             guardarEnLocalStorage();
-            guardarEnFirebase();
+            if (typeof window.guardarEnFirebase === 'function') {
+                window.guardarEnFirebase();
+            }
         }
 
         function guardarEnLocalStorage() {
@@ -576,21 +592,9 @@
             localStorage.setItem('tb_biblioteca_docente', JSON.stringify(bibliotecaPlaneaciones));
         }
 
-        function guardarEnFirebase() {
-            if (firebaseActivo && db) {
-                db.ref('control_docente/').set({
-                    materias,
-                    actividades,
-                    alumnos,
-                    bibliotecaPlaneaciones
-                }).then(() => {
-                    console.log("Guardado en la nube con éxito");
-                }).catch(err => console.error("Error al subir a Firebase:", err));
-            }
-        }
-
         function cargarMateriasEnSelect() {
             const selectMateria = document.getElementById('materia');
+            if (!selectMateria) return;
             const valorPrevio = selectMateria.value;
             selectMateria.innerHTML = '';
             
@@ -605,6 +609,7 @@
 
         function renderizarCatMaterias() {
             const tbody = document.getElementById('lista-materias-cat');
+            if (!tbody) return;
             tbody.innerHTML = '';
             materias.forEach((m, index) => {
                 tbody.innerHTML += `
@@ -653,11 +658,11 @@
             }
         }
 
-        function cambiarTab(tabId) {
+        function cambiarTab(tabId, evt) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(`tab-${tabId}`).classList.add('active');
-            event.target.classList.add('active');
+            if (evt && evt.target) evt.target.classList.add('active');
 
             if (tabId === 'materias') {
                 renderizarCatMaterias();
@@ -665,7 +670,9 @@
         }
 
         function calcularPromedioAlumno(al) {
-            const materiaActual = document.getElementById('materia').value;
+            const materiaSelect = document.getElementById('materia');
+            if (!materiaSelect) return '0.0';
+            const materiaActual = materiaSelect.value;
             let suma = 0, conteo = 0;
             
             if (al.notas && al.notas[materiaActual]) {
@@ -681,6 +688,7 @@
 
         function renderizarTodo() {
             const tbodyAsistencia = document.getElementById('lista-asistencia');
+            if (!tbodyAsistencia) return;
             tbodyAsistencia.innerHTML = '';
 
             alumnos.forEach((al) => {
@@ -715,6 +723,7 @@
 
         function filtrarReporteRango() {
             const tbodyRep = document.getElementById('lista-reportes');
+            if (!tbodyRep) return;
             tbodyRep.innerHTML = '';
 
             alumnos.forEach((al) => {
@@ -827,9 +836,12 @@
         }
 
         function renderizarEvaluacion() {
-            const materiaActual = document.getElementById('materia').value;
+            const materiaSelect = document.getElementById('materia');
+            if (!materiaSelect) return;
+            const materiaActual = materiaSelect.value;
             const thead = document.getElementById('encabezado-evaluacion');
             const tbody = document.getElementById('lista-evaluacion');
+            if (!thead || !tbody) return;
 
             let headerHTML = '<th>Alumno</th>';
             actividades.forEach(act => {
@@ -939,12 +951,12 @@
 
         function guardarCalificaciones() {
             guardarGlobal();
-            alert('📝 ¡Calificaciones guardadas con éxito en Firebase!');
+            alert('📝 ¡Calificaciones guardadas con éxito en la nube!');
         }
 
         function guardarPaseLista() {
             guardarGlobal();
-            alert('📋 Pase de lista y observaciones guardados correctamente en Firebase.');
+            alert('📋 Pase de lista guardado correctamente en la nube.');
         }
 
         function guardarPlaneacionBiblioteca() {
@@ -973,7 +985,7 @@
             document.getElementById('plan-secuencia').value = '';
             document.getElementById('plan-bitacora').value = '';
 
-            alert('📚 ¡Planeación agregada a su Biblioteca y sincronizada!');
+            alert('📚 ¡Planeación agregada a la biblioteca y sincronizada!');
         }
 
         function borrarPlaneacion(id) {
@@ -985,8 +997,11 @@
         }
 
         function renderizarBiblioteca() {
-            const materiaActual = document.getElementById('materia').value;
+            const materiaSelect = document.getElementById('materia');
+            if (!materiaSelect) return;
+            const materiaActual = materiaSelect.value;
             const contenedor = document.getElementById('contenedor-biblioteca');
+            if (!contenedor) return;
             contenedor.innerHTML = '';
 
             const filtradas = bibliotecaPlaneaciones.filter(p => p.materia === materiaActual);

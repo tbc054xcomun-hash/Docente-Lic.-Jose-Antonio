@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Docente ✨ | José Antonio</title>
+    <title>Sistema Control Docente | Lic. José Antonio</title>
     
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
@@ -16,7 +16,6 @@
             --primary-light: #3b82f6;
             --accent-green: #10b981;
             --accent-red: #ef4444;
-            --accent-yellow: #f59e0b;
             --text-dark: #1e293b;
             --text-muted: #64748b;
             --radius: 12px;
@@ -66,6 +65,7 @@
             font-family: inherit;
             font-size: 14px;
             outline: none;
+            box-sizing: border-box;
         }
 
         .nav-tabs {
@@ -143,7 +143,6 @@
         .btn-status.active { opacity: 1; transform: scale(1.05); }
         .btn-a { background: #10b981; color: white; }
         .btn-f { background: #ef4444; color: white; }
-        .btn-r { background: #f59e0b; color: white; }
 
         .kpi-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
         .kpi-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; text-align: center; }
@@ -160,17 +159,6 @@
             cursor: pointer;
         }
 
-        .btn-respaldo {
-            background: #d97706;
-            color: white;
-            border: none;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
         .btn-danger {
             background: var(--accent-red);
             color: white;
@@ -182,6 +170,16 @@
             font-size: 12px;
         }
 
+        .item-biblioteca {
+            background: #f8fafc;
+            border-left: 5px solid var(--primary);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+            border-left-width: 5px;
+        }
+
         #cloud-status {
             font-size: 12px;
             font-weight: bold;
@@ -191,18 +189,17 @@
             color: #854d0e;
         }
 
-        .input-calif { width: 50px; text-align: center; }
+        .input-calif { width: 60px; text-align: center; }
     </style>
 
-    <!-- Cargar Firebase Tradicional -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
 
     <header>
-        <h1>📚 Control Escolar & Planeaciones</h1>
-        <p>👨‍🏫 Docente: José Antonio | Telebachillerato</p>
+        <h1>📚 Sistema de Control Escolar & Informes</h1>
+        <p>👨‍🏫 Lic. José Antonio | Telebachillerato</p>
     </header>
 
     <div class="filtros-card">
@@ -234,13 +231,16 @@
 
         <div style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
             <span id="cloud-status">🟡 Conectando...</span>
-            <button class="btn-respaldo" onclick="exportarTodoJSON()">📥 Respaldar</button>
         </div>
     </div>
 
     <div class="nav-tabs">
         <button class="tab-btn active" onclick="cambiarTab('asistencia', event)">📋 Pase de Lista</button>
-        <button class="tab-btn" onclick="cambiarTab('evaluacion', event)">📝 Trabajos y Exámenes</button>
+        <button class="tab-btn" onclick="cambiarTab('tareas', event)">📌 Asignar Tareas y Puntos</button>
+        <button class="tab-btn" onclick="cambiarTab('evaluacion', event)">📝 Calificaciones y Parciales</button>
+        <button class="tab-btn" onclick="cambiarTab('reportes', event)">📊 Informes y Reportes</button>
+        <button class="tab-btn" onclick="cambiarTab('planeacion', event)">📖 Diseñar Planeación</button>
+        <button class="tab-btn" onclick="cambiarTab('recursos', event)">📎 Recursos y Archivos</button>
         <button class="tab-btn" onclick="cambiarTab('materias', event)">⚙️ Mis Materias</button>
     </div>
 
@@ -274,12 +274,30 @@
         </div>
     </div>
 
-    <!-- 2. TRABAJOS Y EXÁMENES -->
+    <!-- 2. TAREAS Y PUNTOS ADICIONALES -->
+    <div id="tab-tareas" class="tab-content">
+        <div class="card">
+            <h2>
+                📌 Asignación de Tareas y Puntos
+                <button class="btn-primary" onclick="agregarTareaModal()" style="font-size:12px;">+ Crear Nueva Tarea</button>
+            </h2>
+            <table>
+                <thead>
+                    <tr id="encabezado-tareas"></tr>
+                </thead>
+                <tbody id="lista-tareas"></tbody>
+            </table>
+            <br>
+            <button class="btn-primary" onclick="guardarGlobal()">💾 Guardar Registro de Tareas</button>
+        </div>
+    </div>
+
+    <!-- 3. TRABAJOS Y EXÁMENES -->
     <div id="tab-evaluacion" class="tab-content">
         <div class="card">
             <h2>
-                📝 Calificaciones
-                <button class="btn-primary" onclick="agregarActividad()" style="font-size:12px;">+ Nueva Actividad</button>
+                📝 Registro de Calificaciones
+                <button class="btn-primary" onclick="agregarActividad()" style="font-size:12px;">+ Nueva Actividad/Examen</button>
             </h2>
             <table>
                 <thead>
@@ -292,17 +310,83 @@
         </div>
     </div>
 
-    <!-- 3. CATÁLOGO DE MATERIAS -->
+    <!-- 4. INFORMES Y REPORTES -->
+    <div id="tab-reportes" class="tab-content">
+        <div class="grid-2">
+            <div class="card">
+                <h2>📊 Reporte General del Grupo</h2>
+                <p>Genera un resumen automático de promedios, asistencias e incidencias del grupo actual.</p>
+                <button class="btn-primary" onclick="generarInformeGrupo()">📄 Generar Informe de Grupo</button>
+                <br><br>
+                <div id="vista-informe" style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #cbd5e1;">
+                    <small style="color:var(--text-muted)">Haz clic en el botón de arriba para desplegar el resumen.</small>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🖨️ Exportación e Imprimir</h2>
+                <p>Imprime el reporte actual o expórtalo para el expediente del Telebachillerato.</p>
+                <button class="btn-primary" onclick="window.print()">🖨️ Imprimir Pantalla / Guardar PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. PLANEACIONES -->
+    <div id="tab-planeacion" class="tab-content">
+        <div class="grid-2">
+            <div class="card">
+                <h2>📖 Diseñador de Planeación</h2>
+                <label>Proyecto / Tema Principal:</label><br>
+                <input type="text" id="plan-proyecto" style="width:100%" placeholder="Ej. Proyecto de ecología..."><br><br>
+
+                <label>Secuencia Didáctica (Inicio, Desarrollo, Cierre):</label><br>
+                <textarea id="plan-secuencia" rows="4" style="width:100%" placeholder="Describe las actividades didácticas aquí..."></textarea><br><br>
+
+                <label>Bitácora / Observaciones:</label><br>
+                <textarea id="plan-bitacora" rows="3" style="width:100%" placeholder="Anotaciones de la clase..."></textarea><br><br>
+
+                <button class="btn-primary" onclick="guardarPlaneacion()">💾 Guardar y Sincronizar Planeación</button>
+            </div>
+
+            <div class="card">
+                <h2>📚 Planeaciones Registradas</h2>
+                <div id="contenedor-biblioteca"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. RECURSOS Y ARCHIVOS -->
+    <div id="tab-recursos" class="tab-content">
+        <div class="grid-2">
+            <div class="card">
+                <h2>📎 Agregar Recurso o Enlace</h2>
+                <label>Título del archivo / recurso:</label><br>
+                <input type="text" id="rec-titulo" style="width:100%" placeholder="Ej. Guía de examen PDF"><br><br>
+
+                <label>Enlace Web o Drive (URL):</label><br>
+                <input type="url" id="rec-link" style="width:100%" placeholder="https://drive.google.com/..."><br><br>
+
+                <button class="btn-primary" onclick="guardarRecurso()">➕ Guardar Recurso</button>
+            </div>
+
+            <div class="card">
+                <h2>📂 Archivos de la Materia</h2>
+                <div id="contenedor-recursos"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. CATÁLOGO DE MATERIAS -->
     <div id="tab-materias" class="tab-content">
         <div class="grid-2">
             <div class="card">
                 <h2>➕ Agregar Materia</h2>
                 <input type="text" id="nueva-materia-nombre" placeholder="Ej. Matemáticas I" style="width:80%;"><br><br>
-                <button class="btn-primary" onclick="agregarNuevaMateriaCat()">➕ Agregar</button>
+                <button class="btn-primary" onclick="agregarNuevaMateriaCat()">➕ Agregar Materia</button>
             </div>
 
             <div class="card">
-                <h2>📖 Mis Materias</h2>
+                <h2>📖 Mis Materias Registradas</h2>
                 <table>
                     <thead>
                         <tr>
@@ -317,7 +401,6 @@
     </div>
 
     <script>
-        // Configuración directa de tu Firebase
         var firebaseConfig = {
             apiKey: "AIzaSyAsRKbpoeJghXgOMkIQA3c10BAD040f7fA",
             authDomain: "registro-docente-97f5f.firebaseapp.com",
@@ -332,22 +415,31 @@
         var database = firebase.database();
         var docenteRef = database.ref('control_docente');
 
+        var bibliotecaPlaneaciones = JSON.parse(localStorage.getItem('tb_biblioteca_docente')) || JSON.parse(localStorage.getItem('tb_planeaciones')) || [];
+        var recursos = JSON.parse(localStorage.getItem('tb_recursos')) || [];
         var materias = JSON.parse(localStorage.getItem('tb_materias')) || ["Matemáticas I", "Física I", "Química"];
         var actividades = JSON.parse(localStorage.getItem('tb_actividades')) || [{ id: 1, nombre: 'Tarea 1' }, { id: 2, nombre: 'Examen' }];
-        var alumnos = JSON.parse(localStorage.getItem('tb_alumnos_v5')) || [{ id: 1, nombre: 'García López, Carlos', notas: {} }];
+        var listaTareas = JSON.parse(localStorage.getItem('tb_lista_tareas')) || [{ id: 101, nombre: 'Investigación 1' }];
+        var alumnos = JSON.parse(localStorage.getItem('tb_alumnos_v5')) || [{ id: 1, nombre: 'García López, Carlos', notas: {}, tareasVal: {} }];
 
-        // Escuchar cambios en la Nube
         docenteRef.on('value', function(snapshot) {
             var data = snapshot.val();
             if (data) {
                 materias = data.materias || materias;
                 actividades = data.actividades || actividades;
+                listaTareas = data.listaTareas || listaTareas;
                 alumnos = data.alumnos || alumnos;
+                bibliotecaPlaneaciones = data.bibliotecaPlaneaciones || bibliotecaPlaneaciones;
+                recursos = data.recursos || recursos;
+
                 guardarEnLocalStorage();
                 cargarMateriasEnSelect();
                 renderizarCatMaterias();
                 renderizarTodo();
+            } else {
+                guardarGlobal();
             }
+
             var statusEl = document.getElementById('cloud-status');
             if (statusEl) {
                 statusEl.innerText = '🟢 Sincronizado';
@@ -355,7 +447,6 @@
                 statusEl.style.color = '#15803d';
             }
         }, function(error) {
-            console.error("Error Firebase:", error);
             var statusEl = document.getElementById('cloud-status');
             if (statusEl) {
                 statusEl.innerText = '🔴 Revisa Reglas Firebase';
@@ -369,14 +460,20 @@
             docenteRef.set({
                 materias: materias,
                 actividades: actividades,
-                alumnos: alumnos
+                listaTareas: listaTareas,
+                alumnos: alumnos,
+                bibliotecaPlaneaciones: bibliotecaPlaneaciones,
+                recursos: recursos
             });
         }
 
         function guardarEnLocalStorage() {
             localStorage.setItem('tb_materias', JSON.stringify(materias));
             localStorage.setItem('tb_actividades', JSON.stringify(actividades));
+            localStorage.setItem('tb_lista_tareas', JSON.stringify(listaTareas));
             localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
+            localStorage.setItem('tb_biblioteca_docente', JSON.stringify(bibliotecaPlaneaciones));
+            localStorage.setItem('tb_recursos', JSON.stringify(recursos));
         }
 
         function cargarMateriasEnSelect() {
@@ -426,6 +523,9 @@
             document.getElementById('tab-' + tabId).classList.add('active');
             if (evt && evt.target) evt.target.classList.add('active');
             if (tabId === 'materias') renderizarCatMaterias();
+            if (tabId === 'planeacion') renderizarBiblioteca();
+            if (tabId === 'recursos') renderizarRecursos();
+            if (tabId === 'tareas') renderizarTareas();
         }
 
         function renderizarTodo() {
@@ -442,6 +542,9 @@
             });
 
             renderizarEvaluacion();
+            renderizarTareas();
+            renderizarBiblioteca();
+            renderizarRecursos();
             actualizarKPIs();
         }
 
@@ -471,8 +574,147 @@
             });
         }
 
+        function renderizarTareas() {
+            var materiaSelect = document.getElementById('materia');
+            if (!materiaSelect) return;
+            var materiaActual = materiaSelect.value;
+            var thead = document.getElementById('encabezado-tareas');
+            var tbody = document.getElementById('lista-tareas');
+            if (!thead || !tbody) return;
+
+            var headerHTML = '<th>Alumno</th>';
+            listaTareas.forEach(function(t) {
+                headerHTML += '<th>' + t.nombre + '</th>';
+            });
+            thead.innerHTML = headerHTML;
+
+            tbody.innerHTML = '';
+            alumnos.forEach(function(al) {
+                var rowHTML = '<tr><td><strong>' + al.nombre + '</strong></td>';
+                listaTareas.forEach(function(t) {
+                    var val = (al.tareasVal && al.tareasVal[materiaActual] && al.tareasVal[materiaActual][t.id] !== undefined) ? al.tareasVal[materiaActual][t.id] : 0;
+                    rowHTML += '<td><input type="number" class="input-calif" value="' + val + '" onchange="actualizarTarea(' + al.id + ', ' + t.id + ', this.value)"></td>';
+                });
+                rowHTML += '</tr>';
+                tbody.innerHTML += rowHTML;
+            });
+        }
+
+        function agregarTareaModal() {
+            var nombre = prompt('Nombre de la tarea/trabajo:');
+            if (nombre) {
+                listaTareas.push({ id: Date.now(), nombre: nombre });
+                guardarGlobal();
+                renderizarTareas();
+            }
+        }
+
+        function actualizarTarea(alumnoId, tareaId, valor) {
+            var materiaActual = document.getElementById('materia').value;
+            var alumno = alumnos.find(function(a) { return a.id === alumnoId; });
+            if (alumno) {
+                if (!alumno.tareasVal) alumno.tareasVal = {};
+                if (!alumno.tareasVal[materiaActual]) alumno.tareasVal[materiaActual] = {};
+                alumno.tareasVal[materiaActual][tareaId] = Number(valor);
+                guardarGlobal();
+            }
+        }
+
+        function generarInformeGrupo() {
+            var materiaActual = document.getElementById('materia').value;
+            var contenedor = document.getElementById('vista-informe');
+            var totalAlumnos = alumnos.length;
+
+            contenedor.innerHTML = '<h3>📋 Informe del Grupo: ' + materiaActual + '</h3>' +
+                '<p><strong>Total de Alumnos:</strong> ' + totalAlumnos + '</p>' +
+                '<p><strong>Actividades Evaluadas:</strong> ' + actividades.length + '</p>' +
+                '<p><strong>Tareas Registradas:</strong> ' + listaTareas.length + '</p>' +
+                '<p style="color:var(--accent-green);"><strong>Estado del Grupo:</strong> Activo y Sincronizado</p>';
+        }
+
+        function guardarPlaneacion() {
+            var materia = document.getElementById('materia').value;
+            var proyecto = document.getElementById('plan-proyecto').value;
+            var secuencia = document.getElementById('plan-secuencia').value;
+            var bitacora = document.getElementById('plan-bitacora').value;
+
+            bibliotecaPlaneaciones.unshift({
+                id: Date.now(),
+                materia: materia,
+                proyecto: proyecto,
+                secuencia: secuencia,
+                bitacora: bitacora
+            });
+
+            guardarGlobal();
+            renderizarBiblioteca();
+            document.getElementById('plan-proyecto').value = '';
+            document.getElementById('plan-secuencia').value = '';
+            document.getElementById('plan-bitacora').value = '';
+            alert('📚 ¡Planeación guardada y sincronizada!');
+        }
+
+        function renderizarBiblioteca() {
+            var contenedor = document.getElementById('contenedor-biblioteca');
+            if (!contenedor) return;
+            var materiaActual = document.getElementById('materia').value;
+            contenedor.innerHTML = '';
+
+            var filtradas = bibliotecaPlaneaciones.filter(function(p) { return p.materia === materiaActual; });
+
+            if (filtradas.length === 0) {
+                contenedor.innerHTML = '<p style="color:var(--text-muted);">Sin planeaciones registradas para ' + materiaActual + '.</p>';
+                return;
+            }
+
+            filtradas.forEach(function(plan) {
+                contenedor.innerHTML += '<div class="item-biblioteca">' +
+                    '<h4>' + plan.materia + '</h4>' +
+                    '<p><strong>Proyecto/Tema:</strong> ' + (plan.proyecto || 'N/A') + '</p>' +
+                    '<p><strong>Secuencia:</strong> ' + (plan.secuencia || 'N/A') + '</p>' +
+                    '<small><strong>Bitácora:</strong> ' + (plan.bitacora || 'Sin notas') + '</small>' +
+                '</div>';
+            });
+        }
+
+        function guardarRecurso() {
+            var materia = document.getElementById('materia').value;
+            var titulo = document.getElementById('rec-titulo').value;
+            var link = document.getElementById('rec-link').value;
+
+            if (titulo && link) {
+                recursos.unshift({ id: Date.now(), materia: materia, titulo: titulo, link: link });
+                guardarGlobal();
+                renderizarRecursos();
+                document.getElementById('rec-titulo').value = '';
+                document.getElementById('rec-link').value = '';
+                alert('📎 Recurso guardado con éxito');
+            }
+        }
+
+        function renderizarRecursos() {
+            var contenedor = document.getElementById('contenedor-recursos');
+            if (!contenedor) return;
+            var materiaActual = document.getElementById('materia').value;
+            contenedor.innerHTML = '';
+
+            var filtrados = recursos.filter(function(r) { return r.materia === materiaActual; });
+
+            if (filtrados.length === 0) {
+                contenedor.innerHTML = '<p style="color:var(--text-muted);">Sin recursos o archivos vinculados.</p>';
+                return;
+            }
+
+            filtrados.forEach(function(rec) {
+                contenedor.innerHTML += '<div class="item-biblioteca">' +
+                    '<h4>📎 ' + rec.titulo + '</h4>' +
+                    '<p><a href="' + rec.link + '" target="_blank" style="color:var(--primary); font-weight:bold;">🔗 Abrir Recurso / Enlace</a></p>' +
+                '</div>';
+            });
+        }
+
         function agregarActividad() {
-            var nombre = prompt('Nombre de la actividad:');
+            var nombre = prompt('Nombre de la actividad/examen:');
             if (nombre) {
                 actividades.push({ id: Date.now(), nombre: nombre });
                 guardarGlobal();
@@ -514,7 +756,7 @@
         function agregarAlumno() {
             var nombre = prompt('Nombre completo del alumno:');
             if (nombre) {
-                alumnos.push({ id: Date.now(), nombre: nombre, notas: {} });
+                alumnos.push({ id: Date.now(), nombre: nombre, notas: {}, tareasVal: {} });
                 guardarGlobal();
                 renderizarTodo();
             }
@@ -530,17 +772,6 @@
 
         function guardarCalificaciones() { guardarGlobal(); alert('📝 ¡Calificaciones guardadas en la nube!'); }
         function guardarPaseLista() { guardarGlobal(); alert('📋 Pase de lista guardado en la nube!'); }
-
-        function exportarTodoJSON() {
-            var paquete = { materias: materias, actividades: actividades, alumnos: alumnos };
-            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(paquete, null, 2));
-            var dl = document.createElement('a');
-            dl.setAttribute("href", dataStr);
-            dl.setAttribute("download", "Respaldo_Control_Docente.json");
-            document.body.appendChild(dl);
-            dl.click();
-            dl.remove();
-        }
 
         cargarMateriasEnSelect();
         renderizarTodo();

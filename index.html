@@ -244,7 +244,7 @@
         <button class="tab-btn" onclick="cambiarTab('materias', event)">⚙️ Mis Materias</button>
     </div>
 
-    <!-- 1. PASE DE LISTA -->
+    <!-- 1. PASE DE LISTA POR SEMESTRE Y MATERIA -->
     <div id="tab-asistencia" class="tab-content active">
         <div class="grid-2">
             <div class="card">
@@ -420,7 +420,7 @@
         var materias = JSON.parse(localStorage.getItem('tb_materias')) || ["Matemáticas I", "Física I", "Química"];
         var actividades = JSON.parse(localStorage.getItem('tb_actividades')) || [{ id: 1, nombre: 'Tarea 1' }, { id: 2, nombre: 'Examen' }];
         var listaTareas = JSON.parse(localStorage.getItem('tb_lista_tareas')) || [{ id: 101, nombre: 'Investigación 1' }];
-        var alumnos = JSON.parse(localStorage.getItem('tb_alumnos_v5')) || [{ id: 1, nombre: 'García López, Carlos', notas: {}, tareasVal: {} }];
+        var alumnos = JSON.parse(localStorage.getItem('tb_alumnos_v5')) || [{ id: 1, nombre: 'García López, Carlos', notas: {}, tareasVal: {}, asistencias: {} }];
 
         docenteRef.on('value', function(snapshot) {
             var data = snapshot.val();
@@ -454,6 +454,12 @@
                 statusEl.style.color = '#b91c1c';
             }
         });
+
+        function obtenerClaveGrupo() {
+            var sem = document.getElementById('semestre') ? document.getElementById('semestre').value : '1';
+            var mat = document.getElementById('materia') ? document.getElementById('materia').value : 'General';
+            return 'S' + sem + '_' + mat;
+        }
 
         function guardarGlobal() {
             guardarEnLocalStorage();
@@ -532,11 +538,16 @@
             var tbodyAsistencia = document.getElementById('lista-asistencia');
             if (!tbodyAsistencia) return;
             tbodyAsistencia.innerHTML = '';
+            var claveGrupo = obtenerClaveGrupo();
 
             alumnos.forEach(function(al) {
+                var estadoAsis = (al.asistencias && al.asistencias[claveGrupo]) ? al.asistencias[claveGrupo] : 'A';
+                var activeA = estadoAsis === 'A' ? 'active' : '';
+                var activeF = estadoAsis === 'F' ? 'active' : '';
+
                 tbodyAsistencia.innerHTML += '<tr>' +
                     '<td><strong>' + al.nombre + '</strong></td>' +
-                    '<td><div class="btn-group"><button class="btn-status btn-a active" onclick="marcar(this)">A</button><button class="btn-status btn-f" onclick="marcar(this)">F</button></div></td>' +
+                    '<td><div class="btn-group"><button class="btn-status btn-a ' + activeA + '" onclick="marcar(this, ' + al.id + ', \'A\')">A</button><button class="btn-status btn-f ' + activeF + '" onclick="marcar(this, ' + al.id + ', \'F\')">F</button></div></td>' +
                     '<td><button class="btn-danger" onclick="borrarAlumno(' + al.id + ')">🗑️ Borrar</button></td>' +
                 '</tr>';
             });
@@ -622,10 +633,11 @@
 
         function generarInformeGrupo() {
             var materiaActual = document.getElementById('materia').value;
+            var semActual = document.getElementById('semestre').value;
             var contenedor = document.getElementById('vista-informe');
             var totalAlumnos = alumnos.length;
 
-            contenedor.innerHTML = '<h3>📋 Informe del Grupo: ' + materiaActual + '</h3>' +
+            contenedor.innerHTML = '<h3>📋 Informe del Grupo: Semestre ' + semActual + ' - ' + materiaActual + '</h3>' +
                 '<p><strong>Total de Alumnos:</strong> ' + totalAlumnos + '</p>' +
                 '<p><strong>Actividades Evaluadas:</strong> ' + actividades.length + '</p>' +
                 '<p><strong>Tareas Registradas:</strong> ' + listaTareas.length + '</p>' +
@@ -733,10 +745,18 @@
             }
         }
 
-        function marcar(btn) {
+        function marcar(btn, alumnoId, tipo) {
             var btns = btn.parentElement.querySelectorAll('.btn-status');
             btns.forEach(function(b) { b.classList.remove('active'); });
             btn.classList.add('active');
+
+            var claveGrupo = obtenerClaveGrupo();
+            var alumno = alumnos.find(function(a) { return a.id === alumnoId; });
+            if (alumno) {
+                if (!alumno.asistencias) alumno.asistencias = {};
+                alumno.asistencias[claveGrupo] = tipo;
+            }
+
             actualizarKPIs();
         }
 
@@ -756,7 +776,7 @@
         function agregarAlumno() {
             var nombre = prompt('Nombre completo del alumno:');
             if (nombre) {
-                alumnos.push({ id: Date.now(), nombre: nombre, notas: {}, tareasVal: {} });
+                alumnos.push({ id: Date.now(), nombre: nombre, notas: {}, tareasVal: {}, asistencias: {} });
                 guardarGlobal();
                 renderizarTodo();
             }
@@ -771,7 +791,7 @@
         }
 
         function guardarCalificaciones() { guardarGlobal(); alert('📝 ¡Calificaciones guardadas en la nube!'); }
-        function guardarPaseLista() { guardarGlobal(); alert('📋 Pase de lista guardado en la nube!'); }
+        function guardarPaseLista() { guardarGlobal(); alert('📋 Pase de lista guardado por Semestre y Materia!'); }
 
         cargarMateriasEnSelect();
         renderizarTodo();

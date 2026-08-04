@@ -1105,11 +1105,27 @@
     measurementId: "G-LPM9T4X9E2"
   };
 
-  // Inicializar Firebase
+  <!-- Conexión a Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAsRKbpoeJghXgOMkIQA3c10BAD040f7fA",
+    authDomain: "registro-docente-97f5f.firebaseapp.com",
+    databaseURL: "https://registro-docente-97f5f-default-rtdb.firebaseio.com",
+    projectId: "registro-docente-97f5f",
+    storageBucket: "registro-docente-97f5f.firebasestorage.app",
+    messagingSenderId: "768925300502",
+    appId: "1:768925300502:web:1382c0b860b5ade940c237",
+    measurementId: "G-LPM9T4X9E2"
+  };
+
   const app = initializeApp(firebaseConfig);
   const database = getDatabase(app);
 
   console.log("Firebase conectado correctamente");
+</script>
 </script>
 </body>
 </html>

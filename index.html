@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Docente ✨ | José Antonio</title>
+    <!-- Fuente Google Fonts -->
+     <link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Control Escolar">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2991/2991108.png">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* PALETA FORMAL Y PROFESIONAL */
+            --bg-color: #0f172a; /* Fondo principal en Azul Oscuro Formal / Slate */
+            --card-bg: #ffffff;
+            --primary: #1e40af; /* Azul institucional formal */
+            --primary-light: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --radius: 12px;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 24px;
+            color: var(--text-dark);
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            margin-bottom: 24px;
+            border: 1px solid #334155;
+        }
+
+        header h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 0.5px; }
+        header p { margin: 5px 0 0 0; opacity: 0.85; font-size: 15px; font-weight: 600; }
+
+        .filtros-card {
+            background: var(--card-bg);
+            padding: 18px 24px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            border: 1px solid #cbd5e1;
+        }
+
+        label { font-weight: 700; font-size: 13px; color: var(--text-dark); }
+
+        select, input, textarea {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1.5px solid #cbd5e1;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-weight: 700;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #ffffff;
+            background: #334155;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            margin-bottom: 24px;
+            overflow-x: auto;
+            border: 1px solid #cbd5e1;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: var(--primary);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { text-align: left; padding: 12px; background: #f1f5f9; color: var(--text-dark); font-size: 12px; text-transform: uppercase; border-radius: 6px; white-space: nowrap; font-weight: 700; }
+        td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; white-space: nowrap; }
+
+        .btn-group { display: flex; gap: 6px; }
+        .btn-status {
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0.35;
+            transition: 0.2s;
+        }
+        .btn-status.active { opacity: 1; transform: scale(1.05); }
+        .btn-a { background: #10b981; color: white; }
+        .btn-f { background: #ef4444; color: white; }
+        .btn-r { background: #f59e0b; color: white; }
+
+        .kpi-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
+        .kpi-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; text-align: center; }
+        .kpi-box span { font-size: 22px; font-weight: 700; color: var(--primary); display: block; }
+        .kpi-box small { font-size: 11px; color: var(--text-muted); font-weight: 700; }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-primary:hover { background: #1d4ed8; }
+
+        .btn-excel {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-excel:hover { background: #047857; }
+
+        .btn-respaldo {
+            background: #d97706;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+        .btn-respaldo:hover { background: #b45309; }
+
+        .btn-print {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-print:hover { background: #4338ca; }
+
+        .btn-danger {
+            background: var(--accent-red);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        .item-biblioteca {
+            background: #f8fafc;
+            border-left: 5px solid var(--primary);
+            border-top: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .item-biblioteca h4 { margin: 0 0 5px 0; color: var(--primary); padding-right: 30px; }
+        .btn-borrar-plan {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0.6;
+        }
+
+        .tag-parcial { background: var(--primary-light); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+        .badge-alerta { background: #ef4444; color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+
+        .input-calif { width: 60px; text-align: center; }
+        .btn-del-actividad { background: none; border: none; cursor: pointer; color: var(--accent-red); font-size: 12px; margin-left: 4px; }
+        .rango-fechas { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
+
+        /* VISTA DE IMPRESIÓN LIMPIA */
+        @media print {
+            body { background: white !important; padding: 0; color: black !important; }
+            header, .filtros-card, .nav-tabs, .btn-primary, .btn-excel, .btn-respaldo, .btn-print, .btn-danger, .btn-group, .btn-del-actividad, .rango-fechas { display: none !important; }
+            .card { box-shadow: none; padding: 0; margin: 0; border: none; }
+            .tab-content { display: block !important; }
+            #tab-asistencia, #tab-evaluacion, #tab-planeacion, #tab-materias { display: none !important; }
+            table { width: 100%; border: 1px solid #ccc; }
+            th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+            .badge-alerta { border: 1px solid red; color: red; background: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>📚 Control Escolar & Planeaciones</h1>
+        <p>👨‍🏫 Docente: José Antonio | Telebachillerato</p>
+    </header>
+
+    <div class="filtros-card">
+        <div>
+            <label for="semestre">Semestre:</label><br>
+            <select id="semestre" onchange="renderizarTodo()">
+                <option value="1">1.º Semestre</option>
+                <option value="2">2.º Semestre</option>
+                <option value="3">3.º Semestre</option>
+                <option value="4">4.º Semestre</option>
+                <option value="5">5.º Semestre</option>
+                <option value="6">6.º Semestre</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="materia">Materia Activa:</label><br>
+            <select id="materia" onchange="renderizarTodo()"></select>
+        </div>
+
+        <div>
+            <label for="grupo">Grupo:</label><br>
+            <select id="grupo" disabled style="background:#e2e8f0; cursor:not-allowed;">
+                <option value="A">Grupo A</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="parcial">Parcial:</label><br>
+            <select id="parcial" onchange="renderizarTodo()">
+                <option value="1">Parcial 1</option>
+                <option value="2">Parcial 2</option>
+                <option value="3">Parcial 3</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="fecha">Fecha Actual:</label><br>
+            <input type="date" id="fecha">
+        </div>
+
+        <!-- SECCIÓN DE TRASLADO ENTRE DISPOSITIVOS -->
+        <div style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
+            <button class="btn-respaldo" onclick="exportarTodoJSON()">📥 Respaldar Todo</button>
+            <button class="btn-respaldo" style="background:#0284c7;" onclick="document.getElementById('inputImportar').click()">📤 Cargar Respaldo</button>
+            <input type="file" id="inputImportar" accept=".json" style="display:none;" onchange="importarTodoJSON(event)">
+        </div>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="cambiarTab('asistencia')">📋 Pase de Lista</button>
+        <button class="tab-btn" onclick="cambiarTab('evaluacion')">📝 Trabajos y Exámenes</button>
+        <button class="tab-btn" onclick="cambiarTab('planeacion')">📚 Biblioteca de Planeaciones</button>
+        <button class="tab-btn" onclick="cambiarTab('reportes')">📊 Reportes e Impresión</button>
+        <button class="tab-btn" onclick="cambiarTab('materias')">⚙️ Mis Materias</button>
+    </div>
+
+    <!-- 1. PASE DE LISTA -->
+    <div id="tab-asistencia" class="tab-content active">
+        <div class="grid-2">
+            <div class="card">
+                <h2>📋 Lista de Asistencia <button class="btn-primary" onclick="agregarAlumno()" style="font-size:12px;">+ Alumno</button></h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Alumno</th>
+                            <th>Asistencia</th>
+                            <th>Observaciones / Conducta</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-asistencia"></tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2>📊 Resumen del Día</h2>
+                <div class="kpi-container">
+                    <div class="kpi-box"><span id="kpi-asistencias">0</span><small>ASISTENCIAS</small></div>
+                    <div class="kpi-box"><span id="kpi-faltas" style="color:var(--accent-red)">0</span><small>FALTAS</small></div>
+                    <div class="kpi-box"><span id="kpi-porcentaje">0%</span><small>ASISTENCIA</small></div>
+                </div>
+                <br>
+                <button class="btn-primary" style="width:100%" onclick="guardarPaseLista()">💾 Guardar Asistencia</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. TRABAJOS Y EXÁMENES -->
+    <div id="tab-evaluacion" class="tab-content">
+        <div class="card">
+            <h2>
+                📝 Calificaciones por Actividades
+                <div>
+                    <button class="btn-primary" onclick="agregarActividad()" style="font-size:12px;">+ Nueva Actividad</button>
+                    <button class="btn-excel" onclick="exportarExcel()" style="font-size:12px;">📊 Exportar a Excel</button>
+                </div>
+            </h2>
+            <table>
+                <thead>
+                    <tr id="encabezado-evaluacion"></tr>
+                </thead>
+                <tbody id="lista-evaluacion"></tbody>
+            </table>
+            <br>
+            <button class="btn-primary" onclick="guardarCalificaciones()">💾 Guardar Calificaciones</button>
+        </div>
+    </div>
+
+    <!-- 3. BIBLIOTECA DE PLANEACIONES -->
+    <div id="tab-planeacion" class="tab-content">
+        <div class="grid-2">
+            <div class="card">
+                <h2>📖 Diseñador de Planeación</h2>
+                <label>Proyecto Comunitario / Tema Principal:</label><br>
+                <input type="text" id="plan-proyecto" style="width:95%" placeholder="Ej. Proyecto escolar de reciclaje..."><br><br>
+
+                <label>Secuencia Didáctica / Aprendizaje Esperado:</label><br>
+                <textarea id="plan-secuencia" rows="3" placeholder="Escribe o pega aquí la secuencia de temas..."></textarea><br><br>
+
+                <label>Bitácora: "¿En qué tema o actividad me quedé hoy?"</label><br>
+                <textarea id="plan-bitacora" rows="3" placeholder="Notas sobre el avance diario de este parcial..."></textarea><br><br>
+
+                <button class="btn-primary" onclick="guardarPlaneacionBiblioteca()">📥 Guardar en Biblioteca</button>
+            </div>
+
+            <div class="card">
+                <h2>📚 Archivero de Planeaciones Guardadas</h2>
+                <p style="font-size:13px; color:var(--text-muted)">Aquí se acumulan tus planeaciones filtradas por la materia seleccionada.</p>
+                <div id="contenedor-biblioteca"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. REPORTES E IMPRESIÓN -->
+    <div id="tab-reportes" class="tab-content">
+        <div class="card">
+            <h2>
+                📊 Concentrado de Asistencia y Calificación Acumulada
+                <button class="btn-primary" onclick="imprimirReporteGrupo()" style="font-size:12px;">🖨️ Imprimir Reporte de Grupo</button>
+            </h2>
+
+            <!-- Selector de Rango de Fechas -->
+            <div class="rango-fechas">
+                <div>
+                    <label>Desde:</label>
+                    <input type="date" id="rep-fecha-inicio">
+                </div>
+                <div>
+                    <label>Hasta:</label>
+                    <input type="date" id="rep-fecha-fin">
+                </div>
+                <button class="btn-primary" onclick="filtrarReporteRango()" style="margin-top: 15px; font-size: 13px;">🔍 Consultar Periodo</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Alumno</th>
+                        <th>Asistencias (A)</th>
+                        <th>Retardos (R)</th>
+                        <th>Faltas (F)</th>
+                        <th>Calificación Acumulada</th>
+                        <th>Estatus / Alertas</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-reportes"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 5. CATÁLOGO / ADMINISTRACIÓN DE MATERIAS -->
+    <div id="tab-materias" class="tab-content">
+        <div class="grid-2">
+            <div class="card">
+                <h2>➕ Agregar Nueva Materia</h2>
+                <p style="font-size:13px; color:var(--text-muted)">Añade las asignaturas que impartirás este ciclo escolar en cualquier semestre.</p>
+                
+                <label for="nueva-materia-nombre">Nombre de la Asignatura:</label><br>
+                <input type="text" id="nueva-materia-nombre" placeholder="Ej. Probabilidad y Estadística, Ecología..." style="width:90%;"><br><br>
+                
+                <button class="btn-primary" onclick="agregarNuevaMateriaCat()">➕ Agregar al Catálogo</button>
+            </div>
+
+            <div class="card">
+                <h2>📖 Mis Materias Registradas</h2>
+                <p style="font-size:13px; color:var(--text-muted)">Lista de materias activas en tu sistema. Puedes eliminar las que ya no impartas.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Materia / Asignatura</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-materias-cat"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('fecha').valueAsDate = new Date();
+        
+        const hoy = new Date();
+        const inicioSemana = new Date(hoy);
+        inicioSemana.setDate(hoy.getDate() - 6);
+        document.getElementById('rep-fecha-inicio').valueAsDate = inicioSemana;
+        document.getElementById('rep-fecha-fin').valueAsDate = hoy;
+
+        // Catálogo de materias iniciales guardadas en LocalStorage
+        let materias = JSON.parse(localStorage.getItem('tb_materias')) || [
+            "Matemáticas I", "Pensamiento Matemático", "Física I", "Física II", "Química", "Humanidades", "Lengua y Comunicación", "Estructura Socioeconómica de México"
+        ];
+
+        let actividades = JSON.parse(localStorage.getItem('tb_actividades')) || [
+            { id: 1, nombre: 'Tarea 1' },
+            { id: 2, nombre: 'Proyecto' },
+            { id: 3, nombre: 'Examen' }
+        ];
+
+        let alumnos = JSON.parse(localStorage.getItem('tb_alumnos_v5')) || [
+            { id: 1, grupo: 'A', nombre: 'García López, Carlos', obs: 'Entregó justificante el martes', asistencias: 4, retardos: 1, faltas: 2, notas: { "Matemáticas I": { 1: 9, 2: 8, 3: 7 } } },
+            { id: 2, grupo: 'A', nombre: 'Hernández Gómez, Ana', obs: 'Excelente participación', asistencias: 7, retardos: 0, faltas: 0, notas: { "Matemáticas I": { 1: 10, 2: 10, 3: 9 } } },
+            { id: 3, grupo: 'A', nombre: 'Martínez Ruiz, Luis', obs: '', asistencias: 3, retardos: 0, faltas: 4, notas: { "Matemáticas I": { 1: 6, 2: 7, 3: 5 } } }
+        ];
+
+        let bibliotecaPlaneaciones = JSON.parse(localStorage.getItem('tb_biblioteca_docente')) || [];
+
+        function cargarMateriasEnSelect() {
+            const selectMateria = document.getElementById('materia');
+            const valorPrevio = selectMateria.value;
+            selectMateria.innerHTML = '';
+            
+            materias.forEach(m => {
+                selectMateria.innerHTML += `<option value="${m}">${m}</option>`;
+            });
+
+            if (materias.includes(valorPrevio)) {
+                selectMateria.value = valorPrevio;
+            }
+        }
+
+        function renderizarCatMaterias() {
+            const tbody = document.getElementById('lista-materias-cat');
+            tbody.innerHTML = '';
+            materias.forEach((m, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${m}</strong></td>
+                        <td>
+                            <button class="btn-danger" onclick="eliminarMateriaCat(${index})">🗑️ Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function agregarNuevaMateriaCat() {
+            const input = document.getElementById('nueva-materia-nombre');
+            const nombre = input.value.trim();
+
+            if (!nombre) {
+                alert('Por favor escribe un nombre para la materia.');
+                return;
+            }
+
+            if (materias.includes(nombre)) {
+                alert('Esa materia ya existe en tu catálogo.');
+                return;
+            }
+
+            materias.push(nombre);
+            localStorage.setItem('tb_materias', JSON.stringify(materias));
+            input.value = '';
+            
+            cargarMateriasEnSelect();
+            renderizarCatMaterias();
+            renderizarTodo();
+            alert(`✅ La materia "${nombre}" ha sido agregada con éxito.`);
+        }
+
+        function eliminarMateriaCat(index) {
+            const matNombre = materias[index];
+            if (confirm(`¿Seguro que deseas eliminar la materia "${matNombre}" de tu catálogo?`)) {
+                materias.splice(index, 1);
+                localStorage.setItem('tb_materias', JSON.stringify(materias));
+                cargarMateriasEnSelect();
+                renderizarCatMaterias();
+                renderizarTodo();
+            }
+        }
+
+        function cambiarTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabId === 'materias') {
+                renderizarCatMaterias();
+            }
+        }
+
+        function calcularPromedioAlumno(al) {
+            const materiaActual = document.getElementById('materia').value;
+            let suma = 0, conteo = 0;
+            
+            if (al.notas && al.notas[materiaActual]) {
+                actividades.forEach(act => {
+                    if (al.notas[materiaActual][act.id] !== undefined) {
+                        suma += Number(al.notas[materiaActual][act.id]);
+                        conteo++;
+                    }
+                });
+            }
+            return conteo > 0 ? (suma / conteo).toFixed(1) : '0.0';
+        }
+
+        function renderizarTodo() {
+            const tbodyAsistencia = document.getElementById('lista-asistencia');
+            tbodyAsistencia.innerHTML = '';
+
+            alumnos.forEach((al) => {
+                const globalIdx = alumnos.findIndex(a => a.id === al.id);
+                tbodyAsistencia.innerHTML += `
+                    <tr>
+                        <td><strong>${al.nombre}</strong></td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn-status btn-a active" onclick="marcar(this)">A</button>
+                                <button class="btn-status btn-f" onclick="marcar(this)">F</button>
+                                <button class="btn-status btn-r" onclick="marcar(this)">R</button>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="text" style="width: 200px;" value="${al.obs || ''}" 
+                            placeholder="Notas o conducta..." 
+                            onchange="alumnos[${globalIdx}].obs = this.value">
+                        </td>
+                        <td>
+                            <button class="btn-danger" onclick="borrarAlumno(${al.id})">🗑️ Borrar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            renderizarEvaluacion();
+            renderizarBiblioteca();
+            filtrarReporteRango();
+            actualizarKPIs();
+        }
+
+        function filtrarReporteRango() {
+            const tbodyRep = document.getElementById('lista-reportes');
+            tbodyRep.innerHTML = '';
+
+            alumnos.forEach((al) => {
+                const promedioActual = calcularPromedioAlumno(al);
+                const estadoRiesgo = al.faltas >= 3 ? `<span class="badge-alerta">⚠️ Riesgo (${al.faltas} faltas)</span>` : `<span style="color:var(--accent-green); font-weight:700;">Al Día</span>`;
+                
+                tbodyRep.innerHTML += `
+                    <tr>
+                        <td><strong>${al.nombre}</strong></td>
+                        <td>${al.asistencias || 0} días</td>
+                        <td>${al.retardos || 0} retardos</td>
+                        <td><strong style="color:var(--accent-red)">${al.faltas || 0} faltas</strong></td>
+                        <td><strong style="color:var(--primary); font-size: 15px;">${promedioActual} pts</strong></td>
+                        <td>${estadoRiesgo}</td>
+                        <td>
+                            <button class="btn-print" onclick="imprimirFichaAlumno(${al.id})">📄 Ficha Alumno</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function imprimirReporteGrupo() {
+            window.print();
+        }
+
+        function imprimirFichaAlumno(idAlumno) {
+            const al = alumnos.find(a => a.id === idAlumno);
+            if (!al) return;
+
+            const semestre = document.getElementById('semestre').value;
+            const materia = document.getElementById('materia').value;
+            const parcial = document.getElementById('parcial').value;
+            const promedioActual = calcularPromedioAlumno(al);
+
+            let ventana = window.open('', '_blank', 'width=700,height=600');
+            ventana.document.write(`
+                <html>
+                <head>
+                    <title>Ficha Individual - ${al.nombre}</title>
+                    <style>
+                        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+                        h2, h4 { color: #1e40af; text-align: center; margin-bottom: 5px; }
+                        .card-info { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-top: 15px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+                        .firma { margin-top: 50px; display: flex; justify-content: space-around; text-align: center; }
+                        .linea { border-top: 1px solid #000; width: 200px; padding-top: 5px; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Telebachillerato - Ficha de Evaluación Individual</h2>
+                    <h4>Docente: José Antonio | ${materia} | ${semestre}.º Semestre (Grupo A) | Parcial ${parcial}</h4>
+                    <hr>
+                    <div class="card-info">
+                        <p><strong>Alumno:</strong> ${al.nombre}</p>
+                        <p><strong>Materia:</strong> ${materia}</p>
+                        <p><strong>Calificación Promedio Acumulada:</strong> <strong style="font-size:18px; color:#1e40af;">${promedioActual} / 10 pts</strong></p>
+                        <p><strong>Observaciones / Conducta:</strong> ${al.obs || 'Sin comentarios adicionales'}</p>
+                    </div>
+
+                    <h3>Resumen de Asistencia</h3>
+                    <table>
+                        <tr><th>Asistencias Totales</th><td>${al.asistencias || 0} días</td></tr>
+                        <tr><th>Retardos</th><td>${al.retardos || 0}</td></tr>
+                        <tr><th>Faltas Acumuladas</th><td>${al.faltas || 0} faltas</td></tr>
+                    </table>
+
+                    <div class="firma">
+                        <div class="linea">Firma del Docente</div>
+                        <div class="linea">Firma Padre / Tutor</div>
+                    </div>
+                </body>
+                </html>
+            `);
+            ventana.document.close();
+            ventana.print();
+        }
+
+        function exportarExcel() {
+            const materiaActual = document.getElementById('materia').value;
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            let headers = ["Alumno", "Materia", "Grupo"];
+            actividades.forEach(act => headers.push(act.nombre));
+            headers.push("Promedio Acumulado");
+            csvContent += headers.join(",") + "\n";
+
+            alumnos.forEach(al => {
+                let row = [`"${al.nombre}"`, `"${materiaActual}"`, "Grupo A"];
+                let suma = 0, c = 0;
+                actividades.forEach(act => {
+                    let n = (al.notas && al.notas[materiaActual] && al.notas[materiaActual][act.id] !== undefined) ? al.notas[materiaActual][act.id] : 0;
+                    row.push(n);
+                    suma += Number(n);
+                    c++;
+                });
+                let prom = c > 0 ? (suma / c).toFixed(1) : 0;
+                row.push(prom);
+                csvContent += row.join(",") + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Calificaciones_${materiaActual}_Grupo_A.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function renderizarEvaluacion() {
+            const materiaActual = document.getElementById('materia').value;
+            const thead = document.getElementById('encabezado-evaluacion');
+            const tbody = document.getElementById('lista-evaluacion');
+
+            let headerHTML = '<th>Alumno</th>';
+            actividades.forEach(act => {
+                headerHTML += `
+                    <th>
+                        ${act.nombre}
+                        <button class="btn-del-actividad" onclick="borrarActividad(${act.id})" title="Eliminar actividad">🗑️</button>
+                    </th>
+                `;
+            });
+            headerHTML += '<th>Promedio Acumulado</th>';
+            thead.innerHTML = headerHTML;
+
+            tbody.innerHTML = '';
+            alumnos.forEach((al) => {
+                let rowHTML = `<tr><td><strong>${al.nombre}</strong></td>`;
+                let sumaNotas = 0;
+                let conteoNotas = 0;
+
+                actividades.forEach(act => {
+                    const notaActual = (al.notas && al.notas[materiaActual] && al.notas[materiaActual][act.id] !== undefined) ? al.notas[materiaActual][act.id] : 0;
+                    sumaNotas += Number(notaActual);
+                    conteoNotas++;
+
+                    rowHTML += `
+                        <td>
+                            <input type="number" min="0" max="10" class="input-calif" value="${notaActual}" 
+                            onchange="actualizarNota(${al.id}, ${act.id}, this.value)">
+                        </td>
+                    `;
+                });
+
+                const promedio = conteoNotas > 0 ? (sumaNotas / conteoNotas).toFixed(1) : '0.0';
+                rowHTML += `<td><strong style="color:var(--primary); font-size:15px;">${promedio}</strong></td></tr>`;
+                tbody.innerHTML += rowHTML;
+            });
+        }
+
+        function agregarActividad() {
+            const nombre = prompt('Escriba el nombre de la actividad (Ej. Tarea 2, Exposición, Ensayo):');
+            if (nombre) {
+                const nuevaAct = { id: Date.now(), nombre };
+                actividades.push(nuevaAct);
+                localStorage.setItem('tb_actividades', JSON.stringify(actividades));
+                renderizarEvaluacion();
+            }
+        }
+
+        function borrarActividad(actId) {
+            if (confirm('¿Desea borrar esta actividad y sus calificaciones de la tabla?')) {
+                actividades = actividades.filter(act => act.id !== actId);
+                localStorage.setItem('tb_actividades', JSON.stringify(actividades));
+                renderizarEvaluacion();
+            }
+        }
+
+        function actualizarNota(alumnoId, actividadId, valor) {
+            const materiaActual = document.getElementById('materia').value;
+            const alumno = alumnos.find(a => a.id === alumnoId);
+            if (alumno) {
+                if (!alumno.notas) alumno.notas = {};
+                if (!alumno.notas[materiaActual]) alumno.notas[materiaActual] = {};
+                alumno.notas[materiaActual][actividadId] = Number(valor);
+                renderizarEvaluacion();
+                filtrarReporteRango();
+            }
+        }
+
+        function marcar(btn) {
+            const btns = btn.parentElement.querySelectorAll('.btn-status');
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            actualizarKPIs();
+        }
+
+        function actualizarKPIs() {
+            const activos = document.querySelectorAll('#lista-asistencia .btn-status.active');
+            let a = 0, f = 0;
+            activos.forEach(b => {
+                if (b.classList.contains('btn-a')) a++;
+                if (b.classList.contains('btn-f')) f++;
+            });
+
+            const total = alumnos.length;
+            document.getElementById('kpi-asistencias').innerText = a;
+            document.getElementById('kpi-faltas').innerText = f;
+            document.getElementById('kpi-porcentaje').innerText = total > 0 ? Math.round((a / total) * 100) + '%' : '0%';
+        }
+
+        function agregarAlumno() {
+            const nombre = prompt('Nombre completo del nuevo alumno para el Grupo A:');
+            if (nombre) {
+                alumnos.push({ id: Date.now(), grupo: 'A', nombre, obs: '', asistencias: 0, retardos: 0, faltas: 0, notas: {} });
+                localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
+                renderizarTodo();
+            }
+        }
+
+        function borrarAlumno(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar a este alumno de la lista?')) {
+                alumnos = alumnos.filter(al => al.id !== id);
+                localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
+                renderizarTodo();
+            }
+        }
+
+        function guardarCalificaciones() {
+            localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
+            alert('📝 ¡Calificaciones guardadas con éxito, José Antonio!');
+        }
+
+        function guardarPaseLista() {
+            localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
+            alert('📋 Pase de lista y observaciones guardados correctamente.');
+        }
+
+        function guardarPlaneacionBiblioteca() {
+            const semestre = document.getElementById('semestre').value;
+            const materia = document.getElementById('materia').value;
+            const parcial = document.getElementById('parcial').value;
+            const proyecto = document.getElementById('plan-proyecto').value;
+            const secuencia = document.getElementById('plan-secuencia').value;
+            const bitacora = document.getElementById('plan-bitacora').value;
+
+            const nuevaPlaneacion = {
+                id: Date.now(),
+                semestre,
+                materia,
+                parcial,
+                proyecto,
+                secuencia,
+                bitacora
+            };
+
+            bibliotecaPlaneaciones.unshift(nuevaPlaneacion);
+            localStorage.setItem('tb_biblioteca_docente', JSON.stringify(bibliotecaPlaneaciones));
+            renderizarBiblioteca();
+            
+            document.getElementById('plan-proyecto').value = '';
+            document.getElementById('plan-secuencia').value = '';
+            document.getElementById('plan-bitacora').value = '';
+
+            alert('📚 ¡Planeación agregada a su Biblioteca!');
+        }
+
+        function borrarPlaneacion(id) {
+            if (confirm('¿Quieres eliminar esta planeación de tu biblioteca?')) {
+                bibliotecaPlaneaciones = bibliotecaPlaneaciones.filter(plan => plan.id !== id);
+                localStorage.setItem('tb_biblioteca_docente', JSON.stringify(bibliotecaPlaneaciones));
+                renderizarBiblioteca();
+            }
+        }
+
+        function renderizarBiblioteca() {
+            const materiaActual = document.getElementById('materia').value;
+            const contenedor = document.getElementById('contenedor-biblioteca');
+            contenedor.innerHTML = '';
+
+            const filtradas = bibliotecaPlaneaciones.filter(p => p.materia === materiaActual);
+
+            if (filtradas.length === 0) {
+                contenedor.innerHTML = `<p style="color:var(--text-muted);">No hay planeaciones para la materia "${materiaActual}".</p>`;
+                return;
+            }
+
+            filtradas.forEach((plan) => {
+                contenedor.innerHTML += `
+                    <div class="item-biblioteca">
+                        <button class="btn-borrar-plan" onclick="borrarPlaneacion(${plan.id})" title="Eliminar planeación">🗑️</button>
+                        <h4>${plan.materia} <span class="tag-parcial">${plan.semestre}.º Sem - Parcial ${plan.parcial}</span></h4>
+                        <p><strong>Proyecto/Tema:</strong> ${plan.proyecto || 'N/A'}</p>
+                        <p><strong>Secuencia/Aprendizaje:</strong> ${plan.secuencia || 'N/A'}</p>
+                        <small><strong>Bitácora:</strong> ${plan.bitacora || 'Sin notas'}</small>
+                    </div>
+                `;
+            });
+        }
+
+        // ==========================================
+        // FUNCIONES DE RESPALDO (EXPORTAR / IMPORTAR)
+        // ==========================================
+
+        function exportarTodoJSON() {
+            const paqueteRespaldo = {
+                materias,
+                actividades,
+                alumnos,
+                bibliotecaPlaneaciones,
+                fechaRespaldo: new Date().toLocaleDateString()
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(paqueteRespaldo, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `Respaldo_Control_Docente_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(dlAnchorElem);
+            dlAnchorElem.click();
+            dlAnchorElem.remove();
+        }
+
+        function importarTodoJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const datos = JSON.parse(e.target.result);
+
+                    if (datos.alumnos && datos.materias) {
+                        materias = datos.materias || [];
+                        actividades = datos.actividades || [];
+                        alumnos = datos.alumnos || [];
+                        bibliotecaPlaneaciones = datos.bibliotecaPlaneaciones || [];
+
+                        localStorage.setItem('tb_materias', JSON.stringify(materias));
+                        localStorage.setItem('tb_actividades', JSON.stringify(actividades));
+                        localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
+                        localStorage.setItem('tb_biblioteca_docente', JSON.stringify(bibliotecaPlaneaciones));
+
+                        cargarMateriasEnSelect();
+                        renderizarCatMaterias();
+                        renderizarTodo();
+
+                        alert('📥 ¡Respaldo cargado con éxito! Tus alumnos, calificaciones y planeaciones ya están actualizados en esta pantalla.');
+                    } else {
+                        alert('El archivo seleccionado no coincide con el formato de respaldo.');
+                    }
+                } catch (err) {
+                    alert('Error al leer el archivo. Asegúrate de seleccionar un respaldo .json válido.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Inicialización
+        cargarMateriasEnSelect();
+        renderizarTodo();
+    </script>
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('Service Worker registrado correctamente.'))
+      .catch((err) => console.log('Error en SW:', err));
+  }
+</script>
+</body>
+</html>

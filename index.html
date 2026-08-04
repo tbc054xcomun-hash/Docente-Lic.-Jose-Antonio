@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control Docente ✨ | José Antonio</title>
+    
+    <!-- Configuración PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Control Escolar">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2991/2991108.png">
+    
     <!-- Fuente Google Fonts -->
-     <link rel="manifest" href="manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Control Escolar">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2991/2991108.png">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -263,7 +266,16 @@
         .btn-del-actividad { background: none; border: none; cursor: pointer; color: var(--accent-red); font-size: 12px; margin-left: 4px; }
         .rango-fechas { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
 
-        /* VISTA DE IMPRESIÓN LIMPIA */
+        /* Indicador de estado de sincronización */
+        #cloud-status {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: #e2e8f0;
+            color: #475569;
+        }
+
         @media print {
             body { background: white !important; padding: 0; color: black !important; }
             header, .filtros-card, .nav-tabs, .btn-primary, .btn-excel, .btn-respaldo, .btn-print, .btn-danger, .btn-group, .btn-del-actividad, .rango-fechas { display: none !important; }
@@ -322,10 +334,10 @@
             <input type="date" id="fecha">
         </div>
 
-        <!-- SECCIÓN DE TRASLADO ENTRE DISPOSITIVOS -->
         <div style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
-            <button class="btn-respaldo" onclick="exportarTodoJSON()">📥 Respaldar Todo</button>
-            <button class="btn-respaldo" style="background:#0284c7;" onclick="document.getElementById('inputImportar').click()">📤 Cargar Respaldo</button>
+            <span id="cloud-status">☁️ Conectando...</span>
+            <button class="btn-respaldo" onclick="exportarTodoJSON()">📥 Respaldar</button>
+            <button class="btn-respaldo" style="background:#0284c7;" onclick="document.getElementById('inputImportar').click()">📤 Cargar</button>
             <input type="file" id="inputImportar" accept=".json" style="display:none;" onchange="importarTodoJSON(event)">
         </div>
     </div>
@@ -423,7 +435,6 @@
                 <button class="btn-primary" onclick="imprimirReporteGrupo()" style="font-size:12px;">🖨️ Imprimir Reporte de Grupo</button>
             </h2>
 
-            <!-- Selector de Rango de Fechas -->
             <div class="rango-fechas">
                 <div>
                     <label>Desde:</label>
@@ -453,7 +464,7 @@
         </div>
     </div>
 
-    <!-- 5. CATÁLOGO / ADMINISTRACIÓN DE MATERIAS -->
+    <!-- 5. CATÁLOGO DE MATERIAS -->
     <div id="tab-materias" class="tab-content">
         <div class="grid-2">
             <div class="card">
@@ -468,7 +479,7 @@
 
             <div class="card">
                 <h2>📖 Mis Materias Registradas</h2>
-                <p style="font-size:13px; color:var(--text-muted)">Lista de materias activas en tu sistema. Puedes eliminar las que ya no impartas.</p>
+                <p style="font-size:13px; color:var(--text-muted)">Lista de materias activas en tu sistema.</p>
                 <table>
                     <thead>
                         <tr>
@@ -482,6 +493,10 @@
         </div>
     </div>
 
+    <!-- SDKs DE FIREBASE COMPATIBLES -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <script>
         document.getElementById('fecha').valueAsDate = new Date();
         
@@ -491,7 +506,7 @@
         document.getElementById('rep-fecha-inicio').valueAsDate = inicioSemana;
         document.getElementById('rep-fecha-fin').valueAsDate = hoy;
 
-        // Catálogo de materias iniciales guardadas en LocalStorage
+        // Variables de datos (Carga inicial desde LocalStorage)
         let materias = JSON.parse(localStorage.getItem('tb_materias')) || [
             "Matemáticas I", "Pensamiento Matemático", "Física I", "Física II", "Química", "Humanidades", "Lengua y Comunicación", "Estructura Socioeconómica de México"
         ];
@@ -509,6 +524,85 @@
         ];
 
         let bibliotecaPlaneaciones = JSON.parse(localStorage.getItem('tb_biblioteca_docente')) || [];
+
+        // ==========================================
+        // CONFIGURACIÓN E INTEGRACIÓN CON FIREBASE
+        // ==========================================
+        // ⚠️ REEMPLAZA ESTAS CLAVES CON LAS DE TU PROYECTO DE FIREBASE ⚠️
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY_AQUI",
+            authDomain: "tu-proyecto.firebaseapp.com",
+            databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",
+            projectId: "tu-proyecto",
+            storageBucket: "tu-proyecto.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abc123def456"
+        };
+
+        let db = null;
+        let firebaseActivo = false;
+
+        try {
+            if (firebaseConfig.apiKey !== "TU_API_KEY_AQUI") {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                firebaseActivo = true;
+                
+                // Escuchar cambios de Firebase en tiempo real desde cualquier dispositivo
+                db.ref('control_docente/').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        materias = data.materias || materias;
+                        actividades = data.actividades || actividades;
+                        alumnos = data.alumnos || alumnos;
+                        bibliotecaPlaneaciones = data.bibliotecaPlaneaciones || bibliotecaPlaneaciones;
+
+                        guardarEnLocalStorage();
+                        cargarMateriasEnSelect();
+                        renderizarCatMaterias();
+                        renderizarTodo();
+                        
+                        document.getElementById('cloud-status').innerText = '🟢 Sincronizado';
+                        document.getElementById('cloud-status').style.background = '#dcfce7';
+                        document.getElementById('cloud-status').style.color = '#15803d';
+                    }
+                });
+            } else {
+                document.getElementById('cloud-status').innerText = '🟡 Modo Local';
+            }
+        } catch (e) {
+            console.error("Error al iniciar Firebase:", e);
+            document.getElementById('cloud-status').innerText = '🔴 Error Nube';
+        }
+
+        function guardarGlobal() {
+            guardarEnLocalStorage();
+            guardarEnFirebase();
+        }
+
+        function guardarEnLocalStorage() {
+            localStorage.setItem('tb_materias', JSON.stringify(materias));
+            localStorage.setItem('tb_actividades', JSON.stringify(actividades));
+            localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
+            localStorage.setItem('tb_biblioteca_docente', JSON.stringify(bibliotecaPlaneaciones));
+        }
+
+        function guardarEnFirebase() {
+            if (firebaseActivo && db) {
+                db.ref('control_docente/').set({
+                    materias,
+                    actividades,
+                    alumnos,
+                    bibliotecaPlaneaciones
+                }).then(() => {
+                    console.log("Guardado en la nube con éxito");
+                }).catch(err => console.error("Error al subir a Firebase:", err));
+            }
+        }
+
+        // ==========================================
+        // LÓGICA DE LA APLICACIÓN Y RENDERIZADO
+        // ==========================================
 
         function cargarMateriasEnSelect() {
             const selectMateria = document.getElementById('materia');
@@ -554,7 +648,7 @@
             }
 
             materias.push(nombre);
-            localStorage.setItem('tb_materias', JSON.stringify(materias));
+            guardarGlobal();
             input.value = '';
             
             cargarMateriasEnSelect();
@@ -567,7 +661,7 @@
             const matNombre = materias[index];
             if (confirm(`¿Seguro que deseas eliminar la materia "${matNombre}" de tu catálogo?`)) {
                 materias.splice(index, 1);
-                localStorage.setItem('tb_materias', JSON.stringify(materias));
+                guardarGlobal();
                 cargarMateriasEnSelect();
                 renderizarCatMaterias();
                 renderizarTodo();
@@ -619,7 +713,7 @@
                         <td>
                             <input type="text" style="width: 200px;" value="${al.obs || ''}" 
                             placeholder="Notas o conducta..." 
-                            onchange="alumnos[${globalIdx}].obs = this.value">
+                            onchange="alumnos[${globalIdx}].obs = this.value; guardarGlobal();">
                         </td>
                         <td>
                             <button class="btn-danger" onclick="borrarAlumno(${al.id})">🗑️ Borrar</button>
@@ -794,7 +888,7 @@
             if (nombre) {
                 const nuevaAct = { id: Date.now(), nombre };
                 actividades.push(nuevaAct);
-                localStorage.setItem('tb_actividades', JSON.stringify(actividades));
+                guardarGlobal();
                 renderizarEvaluacion();
             }
         }
@@ -802,7 +896,7 @@
         function borrarActividad(actId) {
             if (confirm('¿Desea borrar esta actividad y sus calificaciones de la tabla?')) {
                 actividades = actividades.filter(act => act.id !== actId);
-                localStorage.setItem('tb_actividades', JSON.stringify(actividades));
+                guardarGlobal();
                 renderizarEvaluacion();
             }
         }
@@ -814,6 +908,7 @@
                 if (!alumno.notas) alumno.notas = {};
                 if (!alumno.notas[materiaActual]) alumno.notas[materiaActual] = {};
                 alumno.notas[materiaActual][actividadId] = Number(valor);
+                guardarGlobal();
                 renderizarEvaluacion();
                 filtrarReporteRango();
             }
@@ -844,7 +939,7 @@
             const nombre = prompt('Nombre completo del nuevo alumno para el Grupo A:');
             if (nombre) {
                 alumnos.push({ id: Date.now(), grupo: 'A', nombre, obs: '', asistencias: 0, retardos: 0, faltas: 0, notas: {} });
-                localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
+                guardarGlobal();
                 renderizarTodo();
             }
         }
@@ -852,18 +947,18 @@
         function borrarAlumno(id) {
             if (confirm('¿Estás seguro de que quieres eliminar a este alumno de la lista?')) {
                 alumnos = alumnos.filter(al => al.id !== id);
-                localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
+                guardarGlobal();
                 renderizarTodo();
             }
         }
 
         function guardarCalificaciones() {
-            localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
+            guardarGlobal();
             alert('📝 ¡Calificaciones guardadas con éxito, José Antonio!');
         }
 
         function guardarPaseLista() {
-            localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
+            guardarGlobal();
             alert('📋 Pase de lista y observaciones guardados correctamente.');
         }
 
@@ -886,7 +981,7 @@
             };
 
             bibliotecaPlaneaciones.unshift(nuevaPlaneacion);
-            localStorage.setItem('tb_biblioteca_docente', JSON.stringify(bibliotecaPlaneaciones));
+            guardarGlobal();
             renderizarBiblioteca();
             
             document.getElementById('plan-proyecto').value = '';
@@ -899,7 +994,7 @@
         function borrarPlaneacion(id) {
             if (confirm('¿Quieres eliminar esta planeación de tu biblioteca?')) {
                 bibliotecaPlaneaciones = bibliotecaPlaneaciones.filter(plan => plan.id !== id);
-                localStorage.setItem('tb_biblioteca_docente', JSON.stringify(bibliotecaPlaneaciones));
+                guardarGlobal();
                 renderizarBiblioteca();
             }
         }
@@ -928,10 +1023,6 @@
                 `;
             });
         }
-
-        // ==========================================
-        // FUNCIONES DE RESPALDO (EXPORTAR / IMPORTAR)
-        // ==========================================
 
         function exportarTodoJSON() {
             const paqueteRespaldo = {
@@ -966,16 +1057,12 @@
                         alumnos = datos.alumnos || [];
                         bibliotecaPlaneaciones = datos.bibliotecaPlaneaciones || [];
 
-                        localStorage.setItem('tb_materias', JSON.stringify(materias));
-                        localStorage.setItem('tb_actividades', JSON.stringify(actividades));
-                        localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
-                        localStorage.setItem('tb_biblioteca_docente', JSON.stringify(bibliotecaPlaneaciones));
-
+                        guardarGlobal();
                         cargarMateriasEnSelect();
                         renderizarCatMaterias();
                         renderizarTodo();
 
-                        alert('📥 ¡Respaldo cargado con éxito! Tus alumnos, calificaciones y planeaciones ya están actualizados en esta pantalla.');
+                        alert('📥 ¡Respaldo cargado con éxito!');
                     } else {
                         alert('El archivo seleccionado no coincide con el formato de respaldo.');
                     }
@@ -990,12 +1077,39 @@
         cargarMateriasEnSelect();
         renderizarTodo();
     </script>
+
+    <!-- Registro del Service Worker para la PWA -->
     <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log('Service Worker registrado correctamente.'))
-      .catch((err) => console.log('Error en SW:', err));
-  }
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js')
+            .then(() => console.log('Service Worker activo'))
+            .catch((err) => console.log('Error SW:', err));
+        });
+      }
+    </script>
+    <!-- Importar Firebase desde la CDN como módulos JS -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  // Tu configuración de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyAsRKbpoeJghXgOMkIQA3c10BAD040f7fA",
+    authDomain: "registro-docente-97f5f.firebaseapp.com",
+    databaseURL: "https://registro-docente-97f5f-default-rtdb.firebaseio.com",
+    projectId: "registro-docente-97f5f",
+    storageBucket: "registro-docente-97f5f.firebasestorage.app",
+    messagingSenderId: "768925300502",
+    appId: "1:768925300502:web:1382c0b860b5ade940c237",
+    measurementId: "G-LPM9T4X9E2"
+  };
+
+  // Inicializar Firebase
+  const app = initializeApp(firebaseConfig);
+  const database = getDatabase(app);
+
+  console.log("Firebase conectado correctamente");
 </script>
 </body>
 </html>

@@ -16,6 +16,7 @@
             --primary-light: #3b82f6;
             --accent-green: #10b981;
             --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
             --text-dark: #1e293b;
             --text-muted: #64748b;
             --radius: 12px;
@@ -130,10 +131,10 @@
         th { text-align: left; padding: 12px; background: #f1f5f9; color: var(--text-dark); font-size: 12px; font-weight: 700; }
         td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
 
-        .btn-group { display: flex; gap: 6px; }
+        .btn-group { display: flex; gap: 4px; }
         .btn-status {
             border: none;
-            padding: 6px 12px;
+            padding: 6px 10px;
             border-radius: 6px;
             font-weight: 700;
             font-size: 12px;
@@ -143,11 +144,12 @@
         .btn-status.active { opacity: 1; transform: scale(1.05); }
         .btn-a { background: #10b981; color: white; }
         .btn-f { background: #ef4444; color: white; }
+        .btn-r { background: #f59e0b; color: white; }
 
-        .kpi-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
-        .kpi-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; text-align: center; }
-        .kpi-box span { font-size: 22px; font-weight: 700; color: var(--primary); display: block; }
-        .kpi-box small { font-size: 11px; color: var(--text-muted); font-weight: 700; }
+        .kpi-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+        .kpi-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; text-align: center; }
+        .kpi-box span { font-size: 20px; font-weight: 700; color: var(--primary); display: block; }
+        .kpi-box small { font-size: 10px; color: var(--text-muted); font-weight: 700; }
 
         .btn-primary {
             background: var(--primary);
@@ -190,6 +192,7 @@
         }
 
         .input-calif { width: 60px; text-align: center; }
+        .tag-total { background: #dcfce7; color: #15803d; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -244,37 +247,35 @@
         <button class="tab-btn" onclick="cambiarTab('materias', event)">⚙️ Mis Materias</button>
     </div>
 
-    <!-- 1. PASE DE LISTA POR SEMESTRE Y MATERIA -->
+    <!-- 1. PASE DE LISTA -->
     <div id="tab-asistencia" class="tab-content active">
-        <div class="grid-2">
-            <div class="card">
-                <h2>📋 Lista de Asistencia <button class="btn-primary" onclick="agregarAlumno()" style="font-size:12px;">+ Alumno</button></h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Alumno</th>
-                            <th>Asistencia</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lista-asistencia"></tbody>
-                </table>
+        <div class="card">
+            <h2>📋 Lista de Asistencia <button class="btn-primary" onclick="agregarAlumno()" style="font-size:12px;">+ Alumno al Semestre</button></h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Alumno</th>
+                        <th>Estado</th>
+                        <th>Justificante</th>
+                        <th>Conducta / Observaciones</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-asistencia"></tbody>
+            </table>
+            <br>
+            <div class="kpi-container">
+                <div class="kpi-box"><span id="kpi-asistencias">0</span><small>ASISTENCIAS (A)</small></div>
+                <div class="kpi-box"><span id="kpi-faltas" style="color:var(--accent-red)">0</span><small>FALTAS (F)</small></div>
+                <div class="kpi-box"><span id="kpi-retardos" style="color:var(--accent-yellow)">0</span><small>RETARDOS (R)</small></div>
+                <div class="kpi-box"><span id="kpi-porcentaje">0%</span><small>% ASISTENCIA</small></div>
             </div>
-
-            <div class="card">
-                <h2>📊 Resumen del Día</h2>
-                <div class="kpi-container">
-                    <div class="kpi-box"><span id="kpi-asistencias">0</span><small>ASISTENCIAS</small></div>
-                    <div class="kpi-box"><span id="kpi-faltas" style="color:var(--accent-red)">0</span><small>FALTAS</small></div>
-                    <div class="kpi-box"><span id="kpi-porcentaje">0%</span><small>ASISTENCIA</small></div>
-                </div>
-                <br>
-                <button class="btn-primary" style="width:100%" onclick="guardarPaseLista()">💾 Guardar Asistencia</button>
-            </div>
+            <br>
+            <button class="btn-primary" style="width:100%" onclick="guardarPaseLista()">💾 Guardar Pase de Lista</button>
         </div>
     </div>
 
-    <!-- 2. TAREAS Y PUNTOS ADICIONALES -->
+    <!-- 2. TAREAS Y PUNTOS SINCRONIZADOS -->
     <div id="tab-tareas" class="tab-content">
         <div class="card">
             <h2>
@@ -288,11 +289,11 @@
                 <tbody id="lista-tareas"></tbody>
             </table>
             <br>
-            <button class="btn-primary" onclick="guardarGlobal()">💾 Guardar Registro de Tareas</button>
+            <button class="btn-primary" onclick="guardarTareas()">💾 Guardar Registro de Tareas</button>
         </div>
     </div>
 
-    <!-- 3. TRABAJOS Y EXÁMENES -->
+    <!-- 3. TRABAJOS Y EXÁMENES SINCRONIZADOS -->
     <div id="tab-evaluacion" class="tab-content">
         <div class="card">
             <h2>
@@ -314,12 +315,14 @@
     <div id="tab-reportes" class="tab-content">
         <div class="grid-2">
             <div class="card">
-                <h2>📊 Reporte General del Grupo</h2>
-                <p>Genera un resumen automático de promedios, asistencias e incidencias del grupo actual.</p>
-                <button class="btn-primary" onclick="generarInformeGrupo()">📄 Generar Informe de Grupo</button>
-                <br><br>
-                <div id="vista-informe" style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #cbd5e1;">
-                    <small style="color:var(--text-muted)">Haz clic en el botón de arriba para desplegar el resumen.</small>
+                <h2>📊 Reporte por Alumno</h2>
+                <label for="select-alumno-reporte">Selecciona un Alumno:</label><br>
+                <select id="select-alumno-reporte" style="width:100%; margin:10px 0;" onchange="generarInformeAlumno()">
+                    <option value="">-- Seleccionar --</option>
+                </select>
+                <br>
+                <div id="vista-informe-alumno" style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #cbd5e1;">
+                    <small style="color:var(--text-muted)">Selecciona un alumno para ver sus registros completos.</small>
                 </div>
             </div>
 
@@ -415,12 +418,12 @@
         var database = firebase.database();
         var docenteRef = database.ref('control_docente');
 
-        var bibliotecaPlaneaciones = JSON.parse(localStorage.getItem('tb_biblioteca_docente')) || JSON.parse(localStorage.getItem('tb_planeaciones')) || [];
+        var bibliotecaPlaneaciones = JSON.parse(localStorage.getItem('tb_biblioteca_docente')) || [];
         var recursos = JSON.parse(localStorage.getItem('tb_recursos')) || [];
         var materias = JSON.parse(localStorage.getItem('tb_materias')) || ["Matemáticas I", "Física I", "Química"];
-        var actividades = JSON.parse(localStorage.getItem('tb_actividades')) || [{ id: 1, nombre: 'Tarea 1' }, { id: 2, nombre: 'Examen' }];
-        var listaTareas = JSON.parse(localStorage.getItem('tb_lista_tareas')) || [{ id: 101, nombre: 'Investigación 1' }];
-        var alumnos = JSON.parse(localStorage.getItem('tb_alumnos_v5')) || [{ id: 1, nombre: 'García López, Carlos', notas: {}, tareasVal: {}, asistencias: {} }];
+        var actividades = JSON.parse(localStorage.getItem('tb_actividades_v6')) || [];
+        var listaTareas = JSON.parse(localStorage.getItem('tb_lista_tareas_v6')) || [];
+        var alumnos = JSON.parse(localStorage.getItem('tb_alumnos_v5')) || [{ id: 1, nombre: 'García López, Carlos', semestre: '1', notas: {}, tareasVal: {}, asistencias: {}, justificantes: {}, observaciones: {} }];
 
         docenteRef.on('value', function(snapshot) {
             var data = snapshot.val();
@@ -431,6 +434,8 @@
                 alumnos = data.alumnos || alumnos;
                 bibliotecaPlaneaciones = data.bibliotecaPlaneaciones || bibliotecaPlaneaciones;
                 recursos = data.recursos || recursos;
+
+                alumnos.forEach(function(al) { if (!al.semestre) al.semestre = '1'; });
 
                 guardarEnLocalStorage();
                 cargarMateriasEnSelect();
@@ -458,7 +463,21 @@
         function obtenerClaveGrupo() {
             var sem = document.getElementById('semestre') ? document.getElementById('semestre').value : '1';
             var mat = document.getElementById('materia') ? document.getElementById('materia').value : 'General';
-            return 'S' + sem + '_' + mat;
+            var parc = document.getElementById('parcial') ? document.getElementById('parcial').value : '1';
+            return 'S' + sem + '_' + mat + '_P' + parc;
+        }
+
+        function obtenerClaveFiltroCompleto() {
+            var mat = document.getElementById('materia') ? document.getElementById('materia').value : 'General';
+            var parc = document.getElementById('parcial') ? document.getElementById('parcial').value : '1';
+            return mat + '_P' + parc;
+        }
+
+        function obtenerAlumnosPorSemestre() {
+            var semActual = document.getElementById('semestre') ? document.getElementById('semestre').value : '1';
+            return alumnos.filter(function(al) {
+                return (al.semestre || '1') === semActual;
+            });
         }
 
         function guardarGlobal() {
@@ -475,8 +494,8 @@
 
         function guardarEnLocalStorage() {
             localStorage.setItem('tb_materias', JSON.stringify(materias));
-            localStorage.setItem('tb_actividades', JSON.stringify(actividades));
-            localStorage.setItem('tb_lista_tareas', JSON.stringify(listaTareas));
+            localStorage.setItem('tb_actividades_v6', JSON.stringify(actividades));
+            localStorage.setItem('tb_lista_tareas_v6', JSON.stringify(listaTareas));
             localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
             localStorage.setItem('tb_biblioteca_docente', JSON.stringify(bibliotecaPlaneaciones));
             localStorage.setItem('tb_recursos', JSON.stringify(recursos));
@@ -532,6 +551,18 @@
             if (tabId === 'planeacion') renderizarBiblioteca();
             if (tabId === 'recursos') renderizarRecursos();
             if (tabId === 'tareas') renderizarTareas();
+            if (tabId === 'evaluacion') renderizarEvaluacion();
+            if (tabId === 'reportes') cargarListaReporteAlumnos();
+        }
+
+        function obtenerTotalPuntosTareas(alumno, claveFiltro) {
+            var total = 0;
+            if (alumno.tareasVal && alumno.tareasVal[claveFiltro]) {
+                for (var key in alumno.tareasVal[claveFiltro]) {
+                    total += Number(alumno.tareasVal[claveFiltro][key]) || 0;
+                }
+            }
+            return total;
         }
 
         function renderizarTodo() {
@@ -539,109 +570,289 @@
             if (!tbodyAsistencia) return;
             tbodyAsistencia.innerHTML = '';
             var claveGrupo = obtenerClaveGrupo();
+            var alumnosFiltrados = obtenerAlumnosPorSemestre();
 
-            alumnos.forEach(function(al) {
-                var estadoAsis = (al.asistencias && al.asistencias[claveGrupo]) ? al.asistencias[claveGrupo] : 'A';
-                var activeA = estadoAsis === 'A' ? 'active' : '';
-                var activeF = estadoAsis === 'F' ? 'active' : '';
+            if (alumnosFiltrados.length === 0) {
+                tbodyAsistencia.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">No hay alumnos registrados en este semestre. Usa el botón <strong>"+ Alumno al Semestre"</strong>.</td></tr>';
+            } else {
+                alumnosFiltrados.forEach(function(al) {
+                    var estadoAsis = (al.asistencias && al.asistencias[claveGrupo]) ? al.asistencias[claveGrupo] : 'A';
+                    var just = (al.justificantes && al.justificantes[claveGrupo]) ? true : false;
+                    var obs = (al.observaciones && al.observaciones[claveGrupo]) ? al.observaciones[claveGrupo] : '';
 
-                tbodyAsistencia.innerHTML += '<tr>' +
-                    '<td><strong>' + al.nombre + '</strong></td>' +
-                    '<td><div class="btn-group"><button class="btn-status btn-a ' + activeA + '" onclick="marcar(this, ' + al.id + ', \'A\')">A</button><button class="btn-status btn-f ' + activeF + '" onclick="marcar(this, ' + al.id + ', \'F\')">F</button></div></td>' +
-                    '<td><button class="btn-danger" onclick="borrarAlumno(' + al.id + ')">🗑️ Borrar</button></td>' +
-                '</tr>';
-            });
+                    var activeA = estadoAsis === 'A' ? 'active' : '';
+                    var activeF = estadoAsis === 'F' ? 'active' : '';
+                    var activeR = estadoAsis === 'R' ? 'active' : '';
+
+                    tbodyAsistencia.innerHTML += '<tr>' +
+                        '<td><strong>' + al.nombre + '</strong></td>' +
+                        '<td><div class="btn-group">' +
+                            '<button class="btn-status btn-a ' + activeA + '" onclick="marcar(this, ' + al.id + ', \'A\')">A</button>' +
+                            '<button class="btn-status btn-f ' + activeF + '" onclick="marcar(this, ' + al.id + ', \'F\')">F</button>' +
+                            '<button class="btn-status btn-r ' + activeR + '" onclick="marcar(this, ' + al.id + ', \'R\')">R</button>' +
+                        '</div></td>' +
+                        '<td><label><input type="checkbox" ' + (just ? 'checked' : '') + ' onchange="guardarJustificante(' + al.id + ', this.checked)"> Entregó</label></td>' +
+                        '<td><input type="text" value="' + obs + '" placeholder="Observación..." style="width:100%;" onchange="guardarObservacion(' + al.id + ', this.value)"></td>' +
+                        '<td><button class="btn-danger" onclick="borrarAlumno(' + al.id + ')">🗑️ Borrar</button></td>' +
+                    '</tr>';
+                });
+            }
 
             renderizarEvaluacion();
             renderizarTareas();
             renderizarBiblioteca();
             renderizarRecursos();
             actualizarKPIs();
+            cargarListaReporteAlumnos();
         }
 
+        function guardarJustificante(alumnoId, chequeado) {
+            var claveGrupo = obtenerClaveGrupo();
+            var alumno = alumnos.find(function(a) { return a.id === alumnoId; });
+            if (alumno) {
+                if (!alumno.justificantes) alumno.justificantes = {};
+                alumno.justificantes[claveGrupo] = chequeado;
+            }
+        }
+
+        function guardarObservacion(alumnoId, texto) {
+            var claveGrupo = obtenerClaveGrupo();
+            var alumno = alumnos.find(function(a) { return a.id === alumnoId; });
+            if (alumno) {
+                if (!alumno.observaciones) alumno.observaciones = {};
+                alumno.observaciones[claveGrupo] = texto;
+            }
+        }
+
+        // EVALUACIÓN SINCRONIZADA POR MATERIA Y PARCIAL
         function renderizarEvaluacion() {
-            var materiaSelect = document.getElementById('materia');
-            if (!materiaSelect) return;
-            var materiaActual = materiaSelect.value;
+            var claveFiltro = obtenerClaveFiltroCompleto();
+            var matActual = document.getElementById('materia').value;
+            var parcActual = document.getElementById('parcial').value;
+
             var thead = document.getElementById('encabezado-evaluacion');
             var tbody = document.getElementById('lista-evaluacion');
             if (!thead || !tbody) return;
 
-            var headerHTML = '<th>Alumno</th>';
-            actividades.forEach(function(act) {
-                headerHTML += '<th>' + act.nombre + '</th>';
+            var actsFiltradas = actividades.filter(function(a) {
+                return a.materia === matActual && String(a.parcial) === String(parcActual);
             });
+
+            var headerHTML = '<th>Alumno</th>';
+            if (actsFiltradas.length === 0) {
+                headerHTML += '<th><em>Sin actividades registradas para ' + matActual + ' (Parcial ' + parcActual + ')</em></th>';
+            } else {
+                actsFiltradas.forEach(function(act) {
+                    headerHTML += '<th>' + act.nombre + '</th>';
+                });
+            }
+            headerHTML += '<th>📌 Tareas</th><th>⭐ Calificación Final</th>';
             thead.innerHTML = headerHTML;
 
             tbody.innerHTML = '';
-            alumnos.forEach(function(al) {
+            var alumnosFiltrados = obtenerAlumnosPorSemestre();
+
+            if (alumnosFiltrados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">No hay alumnos registrados.</td></tr>';
+                return;
+            }
+
+            alumnosFiltrados.forEach(function(al) {
                 var rowHTML = '<tr><td><strong>' + al.nombre + '</strong></td>';
-                actividades.forEach(function(act) {
-                    var nota = (al.notas && al.notas[materiaActual] && al.notas[materiaActual][act.id] !== undefined) ? al.notas[materiaActual][act.id] : 0;
-                    rowHTML += '<td><input type="number" class="input-calif" value="' + nota + '" onchange="actualizarNota(' + al.id + ', ' + act.id + ', this.value)"></td>';
-                });
+                var sumaActividades = 0;
+                
+                if (actsFiltradas.length === 0) {
+                    rowHTML += '<td style="color:var(--text-muted); font-style:italic;">Crea una actividad arriba</td>';
+                } else {
+                    actsFiltradas.forEach(function(act) {
+                        var nota = (al.notas && al.notas[claveFiltro] && al.notas[claveFiltro][act.id] !== undefined) ? al.notas[claveFiltro][act.id] : 0;
+                        sumaActividades += Number(nota);
+                        rowHTML += '<td><input type="number" class="input-calif" value="' + nota + '" onchange="actualizarNota(' + al.id + ', ' + act.id + ', this.value)"></td>';
+                    });
+                }
+
+                var ptsTareas = obtenerTotalPuntosTareas(al, claveFiltro);
+                var califFinal = sumaActividades + ptsTareas;
+
+                rowHTML += '<td><span style="font-weight:bold; color:var(--primary);">' + ptsTareas + ' pts</span></td>';
+                rowHTML += '<td><span class="tag-total">' + califFinal + '</span></td>';
                 rowHTML += '</tr>';
                 tbody.innerHTML += rowHTML;
             });
         }
 
+        // TAREAS SINCRONIZADAS POR MATERIA Y PARCIAL
         function renderizarTareas() {
-            var materiaSelect = document.getElementById('materia');
-            if (!materiaSelect) return;
-            var materiaActual = materiaSelect.value;
+            var claveFiltro = obtenerClaveFiltroCompleto();
+            var matActual = document.getElementById('materia').value;
+            var parcActual = document.getElementById('parcial').value;
+
             var thead = document.getElementById('encabezado-tareas');
             var tbody = document.getElementById('lista-tareas');
             if (!thead || !tbody) return;
 
-            var headerHTML = '<th>Alumno</th>';
-            listaTareas.forEach(function(t) {
-                headerHTML += '<th>' + t.nombre + '</th>';
+            var tareasFiltradas = listaTareas.filter(function(t) {
+                return t.materia === matActual && String(t.parcial) === String(parcActual);
             });
+
+            var headerHTML = '<th>Alumno</th>';
+            if (tareasFiltradas.length === 0) {
+                headerHTML += '<th><em>Sin tareas registradas para ' + matActual + ' (Parcial ' + parcActual + ')</em></th>';
+            } else {
+                tareasFiltradas.forEach(function(t) {
+                    headerHTML += '<th>' + t.nombre + '</th>';
+                });
+            }
+            headerHTML += '<th>Total Tareas</th>';
             thead.innerHTML = headerHTML;
 
             tbody.innerHTML = '';
-            alumnos.forEach(function(al) {
+            var alumnosFiltrados = obtenerAlumnosPorSemestre();
+
+            if (alumnosFiltrados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:20px;">No hay alumnos registrados.</td></tr>';
+                return;
+            }
+
+            alumnosFiltrados.forEach(function(al) {
                 var rowHTML = '<tr><td><strong>' + al.nombre + '</strong></td>';
-                listaTareas.forEach(function(t) {
-                    var val = (al.tareasVal && al.tareasVal[materiaActual] && al.tareasVal[materiaActual][t.id] !== undefined) ? al.tareasVal[materiaActual][t.id] : 0;
-                    rowHTML += '<td><input type="number" class="input-calif" value="' + val + '" onchange="actualizarTarea(' + al.id + ', ' + t.id + ', this.value)"></td>';
-                });
+
+                if (tareasFiltradas.length === 0) {
+                    rowHTML += '<td style="color:var(--text-muted); font-style:italic;">Crea una tarea con el botón superior</td>';
+                } else {
+                    tareasFiltradas.forEach(function(t) {
+                        var val = (al.tareasVal && al.tareasVal[claveFiltro] && al.tareasVal[claveFiltro][t.id] !== undefined) ? al.tareasVal[claveFiltro][t.id] : 0;
+                        rowHTML += '<td><input type="number" class="input-calif" value="' + val + '" onchange="actualizarTarea(' + al.id + ', ' + t.id + ', this.value)"></td>';
+                    });
+                }
+
+                var totalTareas = obtenerTotalPuntosTareas(al, claveFiltro);
+                rowHTML += '<td><strong>' + totalTareas + ' pts</strong></td>';
                 rowHTML += '</tr>';
                 tbody.innerHTML += rowHTML;
             });
         }
 
         function agregarTareaModal() {
-            var nombre = prompt('Nombre de la tarea/trabajo:');
+            var mat = document.getElementById('materia').value;
+            var parc = document.getElementById('parcial').value;
+            var nombre = prompt('Nombre de la tarea para ' + mat + ' (Parcial ' + parc + '):');
             if (nombre) {
-                listaTareas.push({ id: Date.now(), nombre: nombre });
+                listaTareas.push({ id: Date.now(), materia: mat, parcial: parc, nombre: nombre });
                 guardarGlobal();
                 renderizarTareas();
+                renderizarEvaluacion();
+            }
+        }
+
+        function agregarActividad() {
+            var mat = document.getElementById('materia').value;
+            var parc = document.getElementById('parcial').value;
+            var nombre = prompt('Nombre de la actividad/examen para ' + mat + ' (Parcial ' + parc + '):');
+            if (nombre) {
+                actividades.push({ id: Date.now(), materia: mat, parcial: parc, nombre: nombre });
+                guardarGlobal();
+                renderizarEvaluacion();
             }
         }
 
         function actualizarTarea(alumnoId, tareaId, valor) {
-            var materiaActual = document.getElementById('materia').value;
+            var claveFiltro = obtenerClaveFiltroCompleto();
             var alumno = alumnos.find(function(a) { return a.id === alumnoId; });
             if (alumno) {
                 if (!alumno.tareasVal) alumno.tareasVal = {};
-                if (!alumno.tareasVal[materiaActual]) alumno.tareasVal[materiaActual] = {};
-                alumno.tareasVal[materiaActual][tareaId] = Number(valor);
-                guardarGlobal();
+                if (!alumno.tareasVal[claveFiltro]) alumno.tareasVal[claveFiltro] = {};
+                alumno.tareasVal[claveFiltro][tareaId] = Number(valor);
             }
+            renderizarTareas();
+            renderizarEvaluacion();
         }
 
-        function generarInformeGrupo() {
-            var materiaActual = document.getElementById('materia').value;
-            var semActual = document.getElementById('semestre').value;
-            var contenedor = document.getElementById('vista-informe');
-            var totalAlumnos = alumnos.length;
+        function actualizarNota(alumnoId, actividadId, valor) {
+            var claveFiltro = obtenerClaveFiltroCompleto();
+            var alumno = alumnos.find(function(a) { return a.id === alumnoId; });
+            if (alumno) {
+                if (!alumno.notas) alumno.notas = {};
+                if (!alumno.notas[claveFiltro]) alumno.notas[claveFiltro] = {};
+                alumno.notas[claveFiltro][actividadId] = Number(valor);
+            }
+            renderizarEvaluacion();
+        }
 
-            contenedor.innerHTML = '<h3>📋 Informe del Grupo: Semestre ' + semActual + ' - ' + materiaActual + '</h3>' +
-                '<p><strong>Total de Alumnos:</strong> ' + totalAlumnos + '</p>' +
-                '<p><strong>Actividades Evaluadas:</strong> ' + actividades.length + '</p>' +
-                '<p><strong>Tareas Registradas:</strong> ' + listaTareas.length + '</p>' +
-                '<p style="color:var(--accent-green);"><strong>Estado del Grupo:</strong> Activo y Sincronizado</p>';
+        function guardarTareas() {
+            guardarGlobal();
+            alert('📌 ¡Registro de tareas guardado correctamente!');
+        }
+
+        function cargarListaReporteAlumnos() {
+            var select = document.getElementById('select-alumno-reporte');
+            if (!select) return;
+            select.innerHTML = '<option value="">-- Seleccionar --</option>';
+            var filtrados = obtenerAlumnosPorSemestre();
+            filtrados.forEach(function(al) {
+                select.innerHTML += '<option value="' + al.id + '">' + al.nombre + '</option>';
+            });
+        }
+
+        function generarInformeAlumno() {
+            var id = document.getElementById('select-alumno-reporte').value;
+            var vista = document.getElementById('vista-informe-alumno');
+            if (!id) {
+                vista.innerHTML = '<small style="color:var(--text-muted)">Selecciona un alumno para ver sus registros.</small>';
+                return;
+            }
+
+            var al = alumnos.find(function(a) { return a.id == id; });
+            var mat = document.getElementById('materia').value;
+            var parc = document.getElementById('parcial').value;
+            var claveFiltro = obtenerClaveFiltroCompleto();
+            var claveGrupo = obtenerClaveGrupo();
+
+            var estadoAsis = (al.asistencias && al.asistencias[claveGrupo]) ? al.asistencias[claveGrupo] : 'A';
+            var just = (al.justificantes && al.justificantes[claveGrupo]) ? 'Sí' : 'No';
+            var obs = (al.observaciones && al.observaciones[claveGrupo]) ? al.observaciones[claveGrupo] : 'Sin observaciones';
+
+            var textoEstado = '🟢 Presente';
+            if (estadoAsis === 'F') textoEstado = '🔴 Falta';
+            if (estadoAsis === 'R') textoEstado = '🟡 Retardo';
+
+            var html = '<h3>👤 Reporte: ' + al.nombre + '</h3>' +
+                       '<p><strong>Semestre:</strong> ' + (al.semestre || '1') + ' | <strong>Materia:</strong> ' + mat + ' | <strong>Parcial:</strong> ' + parc + '</p>' +
+                       '<p><strong>Asistencia:</strong> ' + textoEstado + ' | <strong>Justificante:</strong> ' + just + '</p>' +
+                       '<p><strong>Conducta:</strong> ' + obs + '</p><hr>';
+
+            var actsFiltradas = actividades.filter(function(a) { return a.materia === mat && String(a.parcial) === String(parc); });
+            var sumaNotas = 0;
+            html += '<h4>📝 Exámenes / Trabajos</h4><ul>';
+            if (actsFiltradas.length === 0) {
+                html += '<li><em>Sin actividades registradas</em></li>';
+            } else {
+                actsFiltradas.forEach(function(act) {
+                    var val = (al.notas && al.notas[claveFiltro] && al.notas[claveFiltro][act.id] !== undefined) ? al.notas[claveFiltro][act.id] : 0;
+                    sumaNotas += Number(val);
+                    html += '<li>' + act.nombre + ': <strong>' + val + '</strong></li>';
+                });
+            }
+            html += '</ul>';
+
+            var tareasFiltradas = listaTareas.filter(function(t) { return t.materia === mat && String(t.parcial) === String(parc); });
+            var totalTareas = 0;
+            html += '<h4>📌 Tareas</h4><ul>';
+            if (tareasFiltradas.length === 0) {
+                html += '<li><em>Sin tareas registradas</em></li>';
+            } else {
+                tareasFiltradas.forEach(function(t) {
+                    var val = (al.tareasVal && al.tareasVal[claveFiltro] && al.tareasVal[claveFiltro][t.id] !== undefined) ? al.tareasVal[claveFiltro][t.id] : 0;
+                    totalTareas += Number(val);
+                    html += '<li>' + t.nombre + ': <strong>' + val + ' pts</strong></li>';
+                });
+            }
+            html += '</ul><hr>';
+
+            var notaFinal = sumaNotas + totalTareas;
+            html += '<h4>⭐ Calificación Final: <span class="tag-total">' + notaFinal + '</span></h4>';
+
+            vista.innerHTML = html;
         }
 
         function guardarPlaneacion() {
@@ -675,7 +886,7 @@
             var filtradas = bibliotecaPlaneaciones.filter(function(p) { return p.materia === materiaActual; });
 
             if (filtradas.length === 0) {
-                contenedor.innerHTML = '<p style="color:var(--text-muted);">Sin planeaciones registradas para ' + materiaActual + '.</p>';
+                contenedor.innerHTML = '<p style="color:var(--text-muted);">Sin planeaciones para ' + materiaActual + '.</p>';
                 return;
             }
 
@@ -713,7 +924,7 @@
             var filtrados = recursos.filter(function(r) { return r.materia === materiaActual; });
 
             if (filtrados.length === 0) {
-                contenedor.innerHTML = '<p style="color:var(--text-muted);">Sin recursos o archivos vinculados.</p>';
+                contenedor.innerHTML = '<p style="color:var(--text-muted);">Sin recursos vinculados.</p>';
                 return;
             }
 
@@ -723,26 +934,6 @@
                     '<p><a href="' + rec.link + '" target="_blank" style="color:var(--primary); font-weight:bold;">🔗 Abrir Recurso / Enlace</a></p>' +
                 '</div>';
             });
-        }
-
-        function agregarActividad() {
-            var nombre = prompt('Nombre de la actividad/examen:');
-            if (nombre) {
-                actividades.push({ id: Date.now(), nombre: nombre });
-                guardarGlobal();
-                renderizarEvaluacion();
-            }
-        }
-
-        function actualizarNota(alumnoId, actividadId, valor) {
-            var materiaActual = document.getElementById('materia').value;
-            var alumno = alumnos.find(function(a) { return a.id === alumnoId; });
-            if (alumno) {
-                if (!alumno.notas) alumno.notas = {};
-                if (!alumno.notas[materiaActual]) alumno.notas[materiaActual] = {};
-                alumno.notas[materiaActual][actividadId] = Number(valor);
-                guardarGlobal();
-            }
         }
 
         function marcar(btn, alumnoId, tipo) {
@@ -762,21 +953,33 @@
 
         function actualizarKPIs() {
             var activos = document.querySelectorAll('#lista-asistencia .btn-status.active');
-            var a = 0, f = 0;
+            var a = 0, f = 0, r = 0;
             activos.forEach(function(b) {
                 if (b.classList.contains('btn-a')) a++;
                 if (b.classList.contains('btn-f')) f++;
+                if (b.classList.contains('btn-r')) r++;
             });
-            var total = alumnos.length;
+            var total = obtenerAlumnosPorSemestre().length;
             document.getElementById('kpi-asistencias').innerText = a;
             document.getElementById('kpi-faltas').innerText = f;
-            document.getElementById('kpi-porcentaje').innerText = total > 0 ? Math.round((a / total) * 100) + '%' : '0%';
+            document.getElementById('kpi-retardos').innerText = r;
+            document.getElementById('kpi-porcentaje').innerText = total > 0 ? Math.round(((a + r) / total) * 100) + '%' : '0%';
         }
 
         function agregarAlumno() {
-            var nombre = prompt('Nombre completo del alumno:');
+            var semActual = document.getElementById('semestre').value;
+            var nombre = prompt('Nombre completo del alumno (se agregará al ' + semActual + '.º Semestre):');
             if (nombre) {
-                alumnos.push({ id: Date.now(), nombre: nombre, notas: {}, tareasVal: {}, asistencias: {} });
+                alumnos.push({
+                    id: Date.now(),
+                    nombre: nombre,
+                    semestre: semActual,
+                    notas: {},
+                    tareasVal: {},
+                    asistencias: {},
+                    justificantes: {},
+                    observaciones: {}
+                });
                 guardarGlobal();
                 renderizarTodo();
             }
@@ -791,7 +994,7 @@
         }
 
         function guardarCalificaciones() { guardarGlobal(); alert('📝 ¡Calificaciones guardadas en la nube!'); }
-        function guardarPaseLista() { guardarGlobal(); alert('📋 Pase de lista guardado por Semestre y Materia!'); }
+        function guardarPaseLista() { guardarGlobal(); alert('📋 Pase de lista guardado en la nube!'); }
 
         cargarMateriasEnSelect();
         renderizarTodo();

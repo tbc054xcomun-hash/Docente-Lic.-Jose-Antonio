@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Control Docente | Lic. José Antonio</title>
+    <title>Sistema Control Docente | Ing. María de la Luz</title>
     
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
@@ -12,8 +12,8 @@
         :root {
             --bg-color: #0f172a;
             --card-bg: #ffffff;
-            --primary: #1e40af;
-            --primary-light: #3b82f6;
+            --primary: #be185d;
+            --primary-light: #f472b6;
             --accent-green: #10b981;
             --accent-red: #ef4444;
             --accent-yellow: #f59e0b;
@@ -31,7 +31,7 @@
         }
 
         header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+            background: linear-gradient(135deg, #831843 0%, #0f172a 100%);
             color: white;
             padding: 20px 30px;
             text-align: center;
@@ -180,9 +180,6 @@
             margin-bottom: 15px;
             border: 1px solid #e2e8f0;
             border-left-width: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         #cloud-status {
@@ -205,7 +202,7 @@
 
     <header>
         <h1>📚 Sistema de Control Escolar & Informes</h1>
-        <p>👨‍🏫 Lic. José Antonio | Telebachillerato</p>
+        <p>👩‍🏫 Lic. Jose Antonio | Telebachillerato</p>
     </header>
 
     <div class="filtros-card">
@@ -365,14 +362,21 @@
     <div id="tab-recursos" class="tab-content">
         <div class="grid-2">
             <div class="card">
-                <h2>📎 Agregar Recurso o Enlace</h2>
+                <h2>📎 Agregar Recurso o Archivo</h2>
                 <label>Título del archivo / recurso:</label><br>
                 <input type="text" id="rec-titulo" style="width:100%" placeholder="Ej. Guía de examen PDF"><br><br>
 
                 <label>Enlace Web o Drive (URL):</label><br>
-                <input type="url" id="rec-link" style="width:100%" placeholder="https://drive.google.com/..."><br><br>
+                <input type="url" id="rec-link" style="width:100%" placeholder="https://... o selecciona abajo"><br><br>
 
-                <button class="btn-primary" onclick="guardarRecurso()">➕ Guardar Recurso</button>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1.5px dashed #cbd5e1; text-align: center; margin-bottom: 20px;">
+                    <label style="display:block; margin-bottom: 8px; color: var(--primary);">📂 O selecciona un archivo de tu equipo:</label>
+                    <input type="file" id="rec-archivo-local" style="display: none;" onchange="convertirArchivoLocal(this)">
+                    <button type="button" class="btn-primary" style="background: #0284c7;" onclick="document.getElementById('rec-archivo-local').click()">📁 Examinar / Buscar Archivo</button>
+                    <p id="nombre-archivo-cargado" style="font-size: 12px; color: var(--text-muted); margin-top: 8px; font-weight: bold;">Ningún archivo seleccionado</p>
+                </div>
+
+                <button class="btn-primary" onclick="guardarRecurso()" style="width:100%;">➕ Guardar Recurso en la Nube</button>
             </div>
 
             <div class="card">
@@ -419,14 +423,14 @@
 
         firebase.initializeApp(firebaseConfig);
         var database = firebase.database();
-        var docenteRef = database.ref('control_docente');
+        var docenteRef = database.ref('control_docente_maria');
 
-        var bibliotecaPlaneaciones = JSON.parse(localStorage.getItem('tb_biblioteca_docente')) || [];
-        var recursos = JSON.parse(localStorage.getItem('tb_recursos')) || [];
-        var materias = JSON.parse(localStorage.getItem('tb_materias')) || ["Matemáticas I", "Física I", "Química"];
-        var actividades = JSON.parse(localStorage.getItem('tb_actividades_v6')) || [];
-        var listaTareas = JSON.parse(localStorage.getItem('tb_lista_tareas_v6')) || [];
-        var alumnos = JSON.parse(localStorage.getItem('tb_alumnos_v5')) || [{ id: 1, nombre: 'García López, Carlos', semestre: '1', notas: {}, tareasVal: {}, asistencias: {}, justificantes: {}, observaciones: {} }];
+        var bibliotecaPlaneaciones = JSON.parse(localStorage.getItem('tb_biblioteca_docente_maria')) || [];
+        var recursos = JSON.parse(localStorage.getItem('tb_recursos_maria')) || [];
+        var materias = JSON.parse(localStorage.getItem('tb_materias_maria')) || ["Matemáticas I", "Física I", "Química"];
+        var actividades = JSON.parse(localStorage.getItem('tb_actividades_maria')) || [];
+        var listaTareas = JSON.parse(localStorage.getItem('tb_lista_tareas_maria')) || [];
+        var alumnos = JSON.parse(localStorage.getItem('tb_alumnos_maria')) || [{ id: 1, nombre: 'Pérez Gómez, Ana', semestre: '1', notas: {}, tareasVal: {}, asistencias: {}, justificantes: {}, observaciones: {} }];
 
         docenteRef.on('value', function(snapshot) {
             var data = snapshot.val();
@@ -496,12 +500,12 @@
         }
 
         function guardarEnLocalStorage() {
-            localStorage.setItem('tb_materias', JSON.stringify(materias));
-            localStorage.setItem('tb_actividades_v6', JSON.stringify(actividades));
-            localStorage.setItem('tb_lista_tareas_v6', JSON.stringify(listaTareas));
-            localStorage.setItem('tb_alumnos_v5', JSON.stringify(alumnos));
-            localStorage.setItem('tb_biblioteca_docente', JSON.stringify(bibliotecaPlaneaciones));
-            localStorage.setItem('tb_recursos', JSON.stringify(recursos));
+            localStorage.setItem('tb_materias_maria', JSON.stringify(materias));
+            localStorage.setItem('tb_actividades_maria', JSON.stringify(actividades));
+            localStorage.setItem('tb_lista_tareas_maria', JSON.stringify(listaTareas));
+            localStorage.setItem('tb_alumnos_maria', JSON.stringify(alumnos));
+            localStorage.setItem('tb_biblioteca_docente_maria', JSON.stringify(bibliotecaPlaneaciones));
+            localStorage.setItem('tb_recursos_maria', JSON.stringify(recursos));
         }
 
         function cargarMateriasEnSelect() {
@@ -893,12 +897,27 @@
 
             filtradas.forEach(function(plan) {
                 contenedor.innerHTML += '<div class="item-biblioteca">' +
-                    '<div><h4>' + plan.materia + '</h4>' +
+                    '<h4>' + plan.materia + '</h4>' +
                     '<p><strong>Proyecto/Tema:</strong> ' + (plan.proyecto || 'N/A') + '</p>' +
                     '<p><strong>Secuencia:</strong> ' + (plan.secuencia || 'N/A') + '</p>' +
-                    '<small><strong>Bitácora:</strong> ' + (plan.bitacora || 'Sin notas') + '</small></div>' +
+                    '<small><strong>Bitácora:</strong> ' + (plan.bitacora || 'Sin notas') + '</small>' +
                 '</div>';
             });
+        }
+
+        function convertirArchivoLocal(input) {
+            if (input.files && input.files[0]) {
+                var archivo = input.files[0];
+                var labelNombre = document.getElementById('nombre-archivo-cargado');
+                if (labelNombre) labelNombre.innerText = '📄 ' + archivo.name;
+
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('rec-titulo').value = archivo.name;
+                    document.getElementById('rec-link').value = e.target.result;
+                };
+                reader.readAsDataURL(archivo);
+            }
         }
 
         function guardarRecurso() {
@@ -912,9 +931,12 @@
                 renderizarRecursos();
                 document.getElementById('rec-titulo').value = '';
                 document.getElementById('rec-link').value = '';
-                alert('📎 Recurso guardado con éxito');
+                document.getElementById('rec-archivo-local').value = '';
+                var labelNombre = document.getElementById('nombre-archivo-cargado');
+                if (labelNombre) labelNombre.innerText = 'Ningún archivo seleccionado';
+                alert('📎 ¡Recurso guardado con éxito!');
             } else {
-                alert('⚠️ Por favor ingresa el título y el enlace.');
+                alert('⚠️ Completa el título o selecciona un archivo antes de guardar.');
             }
         }
 
@@ -927,25 +949,16 @@
             var filtrados = recursos.filter(function(r) { return r.materia === materiaActual; });
 
             if (filtrados.length === 0) {
-                contenedor.innerHTML = '<p style="color:var(--text-muted);">Sin recursos vinculados para ' + materiaActual + '.</p>';
+                contenedor.innerHTML = '<p style="color:var(--text-muted);">Sin recursos vinculados.</p>';
                 return;
             }
 
             filtrados.forEach(function(rec) {
                 contenedor.innerHTML += '<div class="item-biblioteca">' +
-                    '<div><h4>📎 ' + rec.titulo + '</h4>' +
-                    '<p><a href="' + rec.link + '" target="_blank" style="color:var(--primary); font-weight:bold;">🔗 Abrir Recurso / Enlace</a></p></div>' +
-                    '<button class="btn-danger" onclick="eliminarRecurso(' + rec.id + ')">🗑️ Eliminar</button>' +
+                    '<h4>📎 ' + rec.titulo + '</h4>' +
+                    '<p><a href="' + rec.link + '" target="_blank" style="color:var(--primary); font-weight:bold;">🔗 Abrir Recurso / Enlace</a></p>' +
                 '</div>';
             });
-        }
-
-        function eliminarRecurso(id) {
-            if (confirm('¿Deseas eliminar este recurso?')) {
-                recursos = recursos.filter(function(r) { return r.id !== id; });
-                guardarGlobal();
-                renderizarRecursos();
-            }
         }
 
         function marcar(btn, alumnoId, tipo) {

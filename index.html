@@ -180,6 +180,9 @@
             margin-bottom: 15px;
             border: 1px solid #e2e8f0;
             border-left-width: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         #cloud-status {
@@ -624,7 +627,6 @@
             }
         }
 
-        // EVALUACIÓN SINCRONIZADA POR MATERIA Y PARCIAL
         function renderizarEvaluacion() {
             var claveFiltro = obtenerClaveFiltroCompleto();
             var matActual = document.getElementById('materia').value;
@@ -681,7 +683,6 @@
             });
         }
 
-        // TAREAS SINCRONIZADAS POR MATERIA Y PARCIAL
         function renderizarTareas() {
             var claveFiltro = obtenerClaveFiltroCompleto();
             var matActual = document.getElementById('materia').value;
@@ -892,10 +893,10 @@
 
             filtradas.forEach(function(plan) {
                 contenedor.innerHTML += '<div class="item-biblioteca">' +
-                    '<h4>' + plan.materia + '</h4>' +
+                    '<div><h4>' + plan.materia + '</h4>' +
                     '<p><strong>Proyecto/Tema:</strong> ' + (plan.proyecto || 'N/A') + '</p>' +
                     '<p><strong>Secuencia:</strong> ' + (plan.secuencia || 'N/A') + '</p>' +
-                    '<small><strong>Bitácora:</strong> ' + (plan.bitacora || 'Sin notas') + '</small>' +
+                    '<small><strong>Bitácora:</strong> ' + (plan.bitacora || 'Sin notas') + '</small></div>' +
                 '</div>';
             });
         }
@@ -912,6 +913,8 @@
                 document.getElementById('rec-titulo').value = '';
                 document.getElementById('rec-link').value = '';
                 alert('📎 Recurso guardado con éxito');
+            } else {
+                alert('⚠️ Por favor ingresa el título y el enlace.');
             }
         }
 
@@ -924,16 +927,25 @@
             var filtrados = recursos.filter(function(r) { return r.materia === materiaActual; });
 
             if (filtrados.length === 0) {
-                contenedor.innerHTML = '<p style="color:var(--text-muted);">Sin recursos vinculados.</p>';
+                contenedor.innerHTML = '<p style="color:var(--text-muted);">Sin recursos vinculados para ' + materiaActual + '.</p>';
                 return;
             }
 
             filtrados.forEach(function(rec) {
                 contenedor.innerHTML += '<div class="item-biblioteca">' +
-                    '<h4>📎 ' + rec.titulo + '</h4>' +
-                    '<p><a href="' + rec.link + '" target="_blank" style="color:var(--primary); font-weight:bold;">🔗 Abrir Recurso / Enlace</a></p>' +
+                    '<div><h4>📎 ' + rec.titulo + '</h4>' +
+                    '<p><a href="' + rec.link + '" target="_blank" style="color:var(--primary); font-weight:bold;">🔗 Abrir Recurso / Enlace</a></p></div>' +
+                    '<button class="btn-danger" onclick="eliminarRecurso(' + rec.id + ')">🗑️ Eliminar</button>' +
                 '</div>';
             });
+        }
+
+        function eliminarRecurso(id) {
+            if (confirm('¿Deseas eliminar este recurso?')) {
+                recursos = recursos.filter(function(r) { return r.id !== id; });
+                guardarGlobal();
+                renderizarRecursos();
+            }
         }
 
         function marcar(btn, alumnoId, tipo) {
